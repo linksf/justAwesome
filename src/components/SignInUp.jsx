@@ -102,7 +102,7 @@ const SignInUp = () => {
 
   const [mode, setMode] = useState(MODES.SIGNUP);
   const { signUp, signIn, user } = useContext(FirebaseContext);
-  const { setError } = useContext(UtilityContext);
+  // const { setError } = useContext(UtilityContext);
   const [passwordType, setPasswordType] = useState("password");
   const handleChange = (e) => {
     const { name, value } = e.target;

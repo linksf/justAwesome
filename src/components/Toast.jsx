@@ -9,19 +9,6 @@ import { UtilityContext } from "../context/UtilityContext";
 import styled, { keyframes } from "styled-components";
 import colors from "../Utilities/colors";
 
-const ToastContainer = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 16px;
-  border: 2px solid ${(props) => (props.type ? props.type : "#232323")};
-  z-index: 9999;
-`;
-
 const slideDown = keyframes`
   0% {
     transform: translateY(-100%);
@@ -30,13 +17,26 @@ const slideDown = keyframes`
     transform: translateY(0);
   }
 `;
+const ToastContainer = styled.div`
+  position: fixed;
+  top: ${(props) => (props.show ? 0 : "-100px")};
+  opacity: ${(props) => (props.show ? 1 : "1")};
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  transition: all 0.5s ease-in-out;
+  z-index: 9999;
+`;
 
 const ToastWrapper = styled.div`
   background-color: ${colors.white};
   color: ${colors.black};
   padding: 16px;
   border-radius: 4px;
-  animation: ${slideDown} 0.3s ease-in-out;
+  border: 2px solid ${(props) => (props.type ? props.type : "#232323")};
 `;
 
 const ToastHeadline = styled.h3`
@@ -48,18 +48,21 @@ const ToastMessage = styled.p`
 `;
 
 const Toast = () => {
-  const { toastInfo, colors, TOASTTYPES } = useContext(UtilityContext);
-  const { headline, message, showToast, hideToast, type } = toastInfo;
+  const { toastInfo, setError, hideToast } = useContext(UtilityContext);
+  const { headline, message, showToast, type } = toastInfo;
 
   useEffect(() => {
     if (showToast) {
-      const timeout = setTimeout(hideToast, 3000);
+      const timeout = setTimeout(() => {
+        hideToast();
+        setError(null);
+      }, 3000);
       return () => clearTimeout(timeout);
     }
   }, [showToast, hideToast]);
 
   return showToast ? (
-    <ToastContainer type={type}>
+    <ToastContainer type={type} show={showToast}>
       <ToastWrapper>
         <ToastHeadline>{headline}</ToastHeadline>
         <ToastMessage>{message}</ToastMessage>

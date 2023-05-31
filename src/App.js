@@ -57,7 +57,7 @@ export default function App(){
   const [searchTerm, setSearchTerm] = useState("")
   const {searchForGameByTitle} = useContext(BoardgameContext)
   const {user, userAuth} = useContext(FirebaseContext)
-  const {colors, error, setError, TOASTTYPES, activateToast } = useContext(UtilityContext);
+  const { error, setError, TOASTTYPES, activateToast } = useContext(UtilityContext);
   const [gameObjects, setGameObjects] = useState([])
   const [activeTab, setActiveTab] = useState(0);
   
@@ -68,6 +68,7 @@ export default function App(){
     setSearchTerm(value)
   }
 
+
   const handleSubmit = (e)=>{
     e.preventDefault()
     searchForGameByTitle(searchTerm).then(res=>{
@@ -76,7 +77,7 @@ export default function App(){
     }).catch(err=>console.error(err))
   }
   
-   return (
+  return (
     <Wrapper background={background}>
       <Toast/>
       {userAuth === null ? <SignInUp/> :
@@ -85,6 +86,7 @@ export default function App(){
        
        <PageContainer>
        <Routes>
+
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
         <Route path="/games" element={<Games />} />

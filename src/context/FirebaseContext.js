@@ -6,6 +6,7 @@ import {
   getFirestore,
   collection,
   getDocs,
+  getDoc,
   addDoc,
   setDoc,
   doc,
@@ -19,7 +20,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-
+import { UtilityContext } from "./UtilityContext";
 //create context
 export const FirebaseContext = createContext();
 
@@ -42,7 +43,7 @@ export default function FirebaseProvider({ children }) {
   const auth = getAuth(app);
   const [user, setUser] = useState(null);
   const [userAuth, setUserAuth] = useState(null);
-
+  const {setError, activateToast, TOASTTYPES} = useContext(UtilityContext)
   const userCollection = collection(db, "users");
   
   onAuthStateChanged(auth, (userData) => {
@@ -53,7 +54,10 @@ export default function FirebaseProvider({ children }) {
       const uid = userData.uid;
       const email = userData.email;
       if (userAuth === null) {setUserAuth(userData)};
-      if (user === null) {getUser({ uid: uid, email: email })};
+      if (user === null) {
+        getUser({ uid: uid, email: email })
+          .then(docSnap=>setUser(docSnap.data()))
+        };
       // ...
     } else {
       setUserAuth(null);
@@ -92,12 +96,37 @@ export default function FirebaseProvider({ children }) {
       });
   };
 
+  // const getUser = async (userData) => {
+  //   const { uid, email } = userData;
+  //   const docRef = doc(db, "users", email);
+  //   if (user === null){
+  //   setDoc(
+  //     docRef,
+  //     {
+  //       uid: uid,
+  //       email: email,
+  //       displayName: "",
+  //       photoURL: "",
+  //       games: [],
+  //       events: [],
+  //     },
+  //     { merge: true }
+  //   )
+  //     .then(() => getDoc(docRef))
+  //     .then((docSnap) => setUser(docSnap.data()))
+  //     .catch((err) => {
+  //       console.log(err.message)
+  //       setError(err)
+  //     });
+  //   }
+  // }
   const getUser = async (userData) => {
     const { uid, email } = userData;
     const docRef = doc(db, "users", email);
-    setDoc(
-      docRef,
-      {
+    if (user !== null) return user;
+    const docSnap = await getDoc(docRef)
+    if (docSnap.exists()) return docSnap
+    setDoc(docRef, {
         uid: uid,
         email: email,
         displayName: "",
@@ -106,15 +135,17 @@ export default function FirebaseProvider({ children }) {
         events: [],
       },
       { merge: true }
-    )
-      .then(() => console.log("new user created"))
-      .catch((err) => console.log(err.message));
-  };
-  const signIn = (credentials) => {
+    ).then(()=>{
+      activateToast({headline: "Success", message: "Created new user", type: TOASTTYPES.SUCCESS, duration: 3000});
+      return getDoc(docRef)
+    }).catch((err)=>setError(err))
+    }
+
+    const signIn = (credentials) => {
     const { email, password } = credentials;
     signInWithEmailAndPassword(auth, email, password)
       .then((data) => {
-        console.log(data.user);
+        activateToast({headline: "Success", message: "Signed in", type: TOASTTYPES.SUCCESS, duration: 3000});
       })
       .catch((err) => {
         console.log(err);

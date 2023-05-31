@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import FirebaseProvider from "./context/FirebaseContext"
-import UtilityProvider from "./context/FirebaseContext"
+import UtilityProvider from "./context/UtilityContext"
 import BoardgameProvider from './context/BoardgameContext';
 import { BrowserRouter } from "react-router-dom";
 const root = ReactDOM.createRoot(document.getElementById('root'));
