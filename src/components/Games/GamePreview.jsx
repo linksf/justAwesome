@@ -23,7 +23,7 @@ const DescriptionContainer = styled.div`
     width: 100%;
     height: 100%;
     background: ${(props) =>
-      props.displayMode === "more"
+      props.displaymode === "more"
         ? "red"
         : "linear-gradient(180deg, rgba(255, 255, 255, 0) 80%, rgba(255, 255, 255, 1) 100%"};
     position: absolute;
@@ -42,32 +42,34 @@ const Info = styled.div`
 const MoreLessToggle = styled.h3`
   color: #ff0093;
 `;
-const Wrapper = styled.div`
+const GamePreviewWrapper = styled.div`
   padding: 0;
-  color: red;
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
+  position: relative;
   font-size: 12px;
   font-weight: bold;
   cursor: pointer;
   z-index: 10;
+  display: grid;
+  grid-template-areas:
+    "name name name"
+    "img desc desc"
+    "img info info";
 `;
 
 const GamePreview = (props) => {
-  const { gameObject } = props;
-  const { name, description_preview, thumb_url } = gameObject;
+  const { gameobject } = props;
+  const { name, description_preview, thumb_url, id } = gameobject;
   const [displayMode, setDisplayMode] = useState("less");
   const toggleMoreLess = (e) => {
     setDisplayMode((prevState) => (prevState === "more" ? "less" : "more"));
   };
 
   return (
-    <Wrapper>
+    <GamePreviewWrapper>
       <Title>{name}</Title>
       <Thumbnail src={thumb_url} />
-      <DescriptionContainer displayMode={displayMode}>
-        <Description displayMode={displayMode}>
+      <DescriptionContainer displaymode={displayMode}>
+        <Description displaymode={displayMode}>
           {description_preview}
         </Description>
         <MoreLessToggle onClick={toggleMoreLess}>
@@ -75,7 +77,7 @@ const GamePreview = (props) => {
         </MoreLessToggle>
       </DescriptionContainer>
       <Info></Info>
-    </Wrapper>
+    </GamePreviewWrapper>
   );
 };
 export default GamePreview;

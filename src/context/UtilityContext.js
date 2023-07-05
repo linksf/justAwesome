@@ -13,6 +13,12 @@ export default function UtilityProvider({ children }) {
     black: "#232323"
 })
 
+const SEARCHSCOPES = {
+  ALL: "all",
+  USER: "user",
+  EVENT: "event",
+}
+
 const TOASTTYPES = {
   INFO: colors.primary,
   WARNING: colors.highlightYellow,
@@ -30,17 +36,18 @@ const TOASTTYPES = {
     
   const activateToast = ({headline, message, type, duration}) => {
     setToastInfo({
-      showToast: true,
+      showToast: 1,
       headline: headline,
       message: message,
       type: type,
       duration: duration,
     });
+    setTimeout(hideToast, duration);
   };
 
   const hideToast = () => {
     setToastInfo({
-      showToast: false,
+      showToast: 0,
       headline: "",
       message: "",
       type: TOASTTYPES.INFO,
@@ -48,8 +55,10 @@ const TOASTTYPES = {
     });
   };
 
-const [error, setError] = useState(null);
+  const [subTabData, setSubTabData] = useState([])
 
+const [error, setError] = useState(null);
+ const [activeTab, setActiveTab] = useState(0);
 useEffect(() => {
   if (error) {
     activateToast({message: error.message, headline: "error", type: TOASTTYPES.ERROR, duration: 3000});
@@ -61,9 +70,9 @@ useEffect(() => {
       const timeout = setTimeout(hideToast, 3000);
       return clearTimeout(timeout);
     }
-    }, [toastInfo]);
-
-const value = { colors, error, setError, TOASTTYPES, activateToast, toastInfo, hideToast};
+    }, [error]);
+  const tabs = ["Home", "Events", "Games", "Profile"];
+const value = { colors, error, setError, TOASTTYPES, activateToast, toastInfo, hideToast, SEARCHSCOPES, subTabData, setSubTabData, activeTab, setActiveTab, tabs};
   return (
     <UtilityContext.Provider value={value}>
       {children}

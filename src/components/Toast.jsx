@@ -51,15 +51,15 @@ const Toast = () => {
   const { toastInfo, setError, hideToast } = useContext(UtilityContext);
   const { headline, message, showToast, type } = toastInfo;
 
-  useEffect(() => {
-    if (showToast) {
-      const timeout = setTimeout(() => {
-        hideToast();
-        setError(null);
-      }, 3000);
-      return () => clearTimeout(timeout);
-    }
-  }, [showToast, hideToast]);
+  // useEffect(() => {
+  //   if (showToast) {
+  //     const timeout = setTimeout(() => {
+  //       hideToast();
+  //       setError(null);
+  //     }, 3000);
+  //     return () => clearTimeout(timeout);
+  //   }
+  // }, [showToast, hideToast]);
 
   return showToast ? (
     <ToastContainer type={type} show={showToast}>

@@ -9,8 +9,11 @@ import {
   getDoc,
   addDoc,
   setDoc,
+  updateDoc,
   doc,
   query,
+  arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 import { useState, useEffect, useContext, createContext } from "react";
 import {
@@ -47,7 +50,7 @@ export default function FirebaseProvider({ children }) {
   const userCollection = collection(db, "users");
   
   onAuthStateChanged(auth, (userData) => {
-    console.log(userData)
+    //console.log(userData)
     if (userData && userData?.uid) {
       // User is signed in, see docs for a list of available properties
       // https://firebase.google.com/docs/reference/js/firebase.User
@@ -57,6 +60,7 @@ export default function FirebaseProvider({ children }) {
       if (user === null) {
         getUser({ uid: uid, email: email })
           .then(docSnap=>setUser(docSnap.data()))
+          .catch((err) => setError(err));
         };
       // ...
     } else {
@@ -96,6 +100,63 @@ export default function FirebaseProvider({ children }) {
       });
   };
 
+  const addGameToCurrentUser = async (game, user) => {
+    const { email } = user;
+    const docRef = doc(db, "users", email);
+    try {
+    const docSnap = await getDoc(docRef);
+    const games = docSnap.data().games;
+    if (games.includes(game)) {
+      activateToast(game + " is already in your collection", TOASTTYPES.WARNING, 3000)
+      return;
+    }
+    updateDoc(docRef, {games: arrayUnion(game)}).then(()=>activateToast(game + " added to your collection", TOASTTYPES.SUCCESS, 3000))
+  } catch (err) {
+    setError(err)
+  }
+  }
+
+  const createEvent = async (eventInfo) => {
+    console.log(eventInfo)
+    const { email } = user;
+    const docRef = doc(db, "users", email);    
+    addDoc(collection(db, "events"), {...eventInfo, host: docRef}).then((event)=>{
+      activateToast("Event created", TOASTTYPES.SUCCESS, 3000)
+      updateDoc(docRef, {events: arrayUnion(event)}) 
+    }).catch((err)=>setError(err))
+    
+  }
+
+  const getCurrentUserEvents = async () => {
+    try {
+    const eventsDocs = await Promise.all(user.events.map(eventRef => getDoc(eventRef)))
+    const eventsList = eventsDocs.map(event => event.data())
+    console.log(eventsList)
+    return eventsList;
+    } catch (err) {
+      setError(err)
+    }
+  }
+
+  const getCurrentUserGames = async () => {
+    const docRef = doc(db, "users", user.email);
+    const docSnap = await getDoc(docRef);
+    const games = docSnap.data().games;
+    return games;
+  }
+
+  const getGamesByUid = async (uid) => {
+    const collectionRef = collection(db, "users");
+    const q = query(collectionRef, where("uid", "==", uid));
+    try {
+      const querySnapshot = await getDocs(q);
+      const user = querySnapshot.docs[0].data();
+      return user.games;
+    }
+    catch (err) {
+      setError(err)
+    }
+  }
   // const getUser = async (userData) => {
   //   const { uid, email } = userData;
   //   const docRef = doc(db, "users", email);
@@ -116,7 +177,7 @@ export default function FirebaseProvider({ children }) {
   //     .then((docSnap) => setUser(docSnap.data()))
   //     .catch((err) => {
   //       console.log(err.message)
-  //       setError(err)
+  //       setError(err) 
   //     });
   //   }
   // }
@@ -132,7 +193,7 @@ export default function FirebaseProvider({ children }) {
         displayName: "",
         photoURL: "",
         games: [],
-        events: [],
+        events: []
       },
       { merge: true }
     ).then(()=>{
@@ -152,7 +213,10 @@ export default function FirebaseProvider({ children }) {
       });
   };
 
-  const value = { user, userAuth, signUp, signIn, logOut };
+
+
+  
+  const value = { user, userAuth, signUp, signIn, logOut, addGameToCurrentUser, createEvent, getCurrentUserEvents, getCurrentUserGames, getGamesByUid};
   return (
     <FirebaseContext.Provider value={value}>
       {children}
