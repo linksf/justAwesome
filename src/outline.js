@@ -42,9 +42,19 @@ id: {
         id: string,
         description: string, 
         image: string, 
-        startTime: date, 
-        endTime: date, 
-        location: string, 
+        startTime: string, 
+        endTime: string,
+        date: string,
+        dateObject: {
+            year: string,
+            month: string,
+            day: string,
+            date: string,
+        } 
+        street: string, 
+        city: string, 
+        state: string, 
+        zip: string, 
         attendees: [ 
             {
                 person: reference, 
@@ -69,7 +79,7 @@ id: {
         host: reference, 
         options: { 
             allowGameScheduling: boolean, 
-            allowGameVoting: boolean, 
+            allowGameSignups: boolean, 
             allowGameVoting: boolean, 
             isPublic: boolean,
             isRSVPRequired: boolean, 
@@ -295,13 +305,45 @@ id: {
             Profile: icon
                 to: <Profile/>
 
-    *Footer*
-        props: none
+    *Modal*
+        props: {title: string, children: object, onClose: function}
 
+    *Toast*
+        props: {message: string, type: string, onClose: function}
 
 ***Hooks***
 
 ***Utilities***
+        colors: object
+        fonts: object
+        breakpoints: object
+        mediaQueries: object
+        mixins: object
+        transitions: object
+        shadows: object
+        zIndices: object
+        utils: object
+     
+***Constants***
+
+***Contexts***
+
+***Elements***
+
+        Card: div
+        Button: button
+        Form: form
+            Input: input
+            Label: label
+            Select: select
+            Textarea: textarea 
+        Text: p
+        Heading: h1
+        Link: a
+        Image: img
+        Icon: Fontawesome
+        
+        
 
 ***APIs***
 

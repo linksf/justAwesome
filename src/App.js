@@ -1,4 +1,5 @@
 import { useState, useContext } from "react";
+import "./App.css";
 import { Routes, Route, Outlet, Link } from "react-router-dom";
 import styled from "styled-components";
 import { BoardgameContext } from "./context/BoardgameContext";
@@ -13,7 +14,10 @@ import SignInUp from "./components/SignInUp";
 import background from "./images/background.png";
 import Nav from "./components/Nav";
 import colors from "./Utilities/colors";
-import SubNav from "./components/SubNav";
+import Calendar from "./components/Events/Calendar";
+import Search from "./components/Events/Search";
+import Create from "./components/Events/Create";
+import Event from "./pages/Event";
 import Game from "./pages/Game";
 const Wrapper = styled.div`
   width: 100vw;
@@ -75,6 +79,7 @@ const PageContainer = styled.div`
   //background-color: ${(props) => props.color + "55"};
   flex-direction: column;
   backdrop-filter: blur(5px);
+  position: relative;
   `;
 const Form = styled.form``;
 const Input = styled.input``;
@@ -114,19 +119,19 @@ export default function App() {
       ) : (
         <AppContainer>
           <Nav/>
-
-          <PageContainer color="#ffffff">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/home" element={<Home />} />
               <Route path="/games" element={<Games />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/events" element={<Events />}>
+                <Route path=":id" element={<Event/>} />
+                <Route path="calendar" element={<Calendar />} />
+                <Route path="new" element={<Create />} />
+                <Route path="search" element={<Search />} />
+                </Route>
               <Route path="/games/:id" element={<Game />} />
               <Route path="/profile" element={<Profile />} />
             </Routes>
-          </PageContainer>
-      {subTabData.length > 0 && <SubNav subTabData={subTabData}/>}
         </AppContainer>
       )}
     </Wrapper>

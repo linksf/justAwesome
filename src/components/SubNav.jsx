@@ -9,8 +9,8 @@ const Icon = styled(FontAwesomeIcon)`
   cursor: pointer;
   color: white;
   border-radius: 50%;
-  height: 40px;
-  margin: 15px;
+  height: 30px;
+  margin: 25px;
   text-align: center;
   line-height: 1rem;
   transition: all 0.1s ease;
@@ -24,11 +24,11 @@ const NavWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-around;
-  position: sticky;
+  position: absolute;
   bottom: 0px;
   left: 0;
   width: 100%;
-  height: 70px;
+  height: 60px;
   z-index: 999;
   backdrop-filter: blur(5px);
   padding: 30px auto;
@@ -36,13 +36,13 @@ const NavWrapper = styled.div`
 
   //media queries for all common screen sizes (mobile, tablet, desktop). change the max-width to adjust the screen size
   @media (max-width: 768px) {
-    height: 70px;
+    max-height: 50px;
     width: 100%;
     padding: 0px auto;
   }
 
   @media (max-width: 1024px) {
-    height: 70px;
+    height: 50px;
     width: 100%;
     padding: 0px auto;
   }
@@ -53,7 +53,7 @@ const NavItem = styled.div`
   height: 40px;
   width: 100%;
   vertical-align: center;
-  padding: 10px;
+  padding: 5px;
   line-height: 40px;
   cursor: pointer;
 `;
@@ -64,7 +64,9 @@ const SubNav = (props) => {
     <NavWrapper>
       {subTabData.map((tab, i) => (
         <ToolTip key={i} text={tab.text}>
-          <Icon icon={tab.icon} onClick={tab.action} />
+          <Link to={tab.path}>
+            <Icon icon={tab.icon} />
+          </Link>
         </ToolTip>
       ))}
     </NavWrapper>

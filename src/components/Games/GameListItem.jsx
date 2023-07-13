@@ -1,6 +1,7 @@
 import { FirebaseContext } from "../../context/FirebaseContext";
 import { useContext, useState, useEffect } from "react";
 import { UtilityContext } from "../../context/UtilityContext";
+
 import { BoardgameContext } from "../../context/BoardgameContext";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -38,15 +39,22 @@ const Icon = styled(FontAwesomeIcon)`
   }
 `;
 const GameListItem = ({ game, index }) => {
-  const { name, year_published, primary_publisher } = game;
+  const { name, year_published, primary_publisher, id } = game;
   const { colors } = useContext(UtilityContext);
+  const { addGameToCurrentUser } = useContext(FirebaseContext);
   return (
     <GameListItemWrapper colors={colors} index={index}>
       <GameInfo bold={1}>{name}</GameInfo>
       <GameInfo>{year_published}</GameInfo>
       <GameInfo>{primary_publisher}</GameInfo>
       <GameActions>
-        <Icon icon={faPlusCircle} color={colors.primary} />
+        <Icon
+          icon={faPlusCircle}
+          color={colors.primary}
+          onClick={() => {
+            addGameToCurrentUser(game);
+          }}
+        />
         <Icon icon={faInfoCircle} color={colors.highlightGreen} />
       </GameActions>
     </GameListItemWrapper>

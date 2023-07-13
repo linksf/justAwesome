@@ -26,6 +26,19 @@ const TOASTTYPES = {
   SUCCESS: colors.highlightGreen,
 };
 
+const generateUUID = () => {
+  let d = new Date().getTime();
+  if (typeof performance !== 'undefined' && typeof performance.now === 'function'){
+    d += performance.now(); // use high-precision timer if available
+  }
+  const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = (d + Math.random() * 16) % 16 | 0;
+    d = Math.floor(d / 16);
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+  return uuid;
+}
+
   const [toastInfo, setToastInfo] = useState({
     showToast: false,
     headline: "",
@@ -72,7 +85,7 @@ useEffect(() => {
     }
     }, [error]);
   const tabs = ["Home", "Events", "Games", "Profile"];
-const value = { colors, error, setError, TOASTTYPES, activateToast, toastInfo, hideToast, SEARCHSCOPES, subTabData, setSubTabData, activeTab, setActiveTab, tabs};
+const value = { colors, error, setError, TOASTTYPES, activateToast, toastInfo, hideToast, SEARCHSCOPES, subTabData, setSubTabData, activeTab, setActiveTab, tabs, generateUUID};
   return (
     <UtilityContext.Provider value={value}>
       {children}

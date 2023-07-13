@@ -3,6 +3,7 @@ import styled from "styled-components";
 import colors from "../Utilities/colors";
 import { Link, NavLink } from "react-router-dom";
 import { UtilityContext } from "../context/UtilityContext";
+import "./nav.css";
 const NavWrapper = styled.nav`
   display: flex;
   align-items: center;
@@ -22,16 +23,14 @@ const NavItem = styled(NavLink)`
   width: 100%;
   vertical-align: center;
   padding: 10px;
-  line-height: 40px;
+  line-height: 20px;
   text-align: center;
   font-weight: 600;
-
+  vertical-align: middle;
   font-family: "Roboto", sans-serif;
-  color: ${(props) =>
-    props.activetab ? colors.highlightYellow : colors.primary};
+  color: ${colors.primary};
   cursor: pointer;
-  background-color: ${(props) =>
-    props.activetab ? colors.primary : colors.highlightYellow};
+  background-color: ${colors.highlightYellow};
 `;
 
 const Nav = (props) => {

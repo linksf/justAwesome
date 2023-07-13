@@ -45,7 +45,7 @@ const Games = (props) => {
   );
   const [searchScope, setSearchScope] = useState(SEARCHSCOPES.ALL);
   const [searchResults, setSearchResults] = useState([]);
-  const { searchForGameByTitle } = useContext(BoardgameContext);
+  const { searchForGameByTitle } = useContext(FirebaseContext);
   const [userNameSearch, setUserNameSearch] = useState("");
   const [eventIdSearch, seteventIdSearch] = useState("");
 
@@ -83,6 +83,17 @@ const Games = (props) => {
             id: game?.id,
             year_published: game?.year_published,
             primary_publisher: game?.primary_publisher?.name,
+            id: game?.id,
+            min_players: game?.min_players,
+            max_players: game?.max_players,
+            min_playtime: game?.min_playtime,
+            max_playtime: game?.max_playtime,
+            min_age: game?.min_age,
+            description_preview: game?.description_preview,
+            thumb_url: game?.thumb_url,
+            image_url: game?.image_url,
+            mechanics: game?.mechanics,
+            categories: game?.categories,
           });
         });
         console.log(games);

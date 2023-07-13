@@ -29,7 +29,15 @@ import Calendar from "../components/Events/Calendar";
 import Search from "../components/Events/Search";
 import Manage from "../components/Events/Manage";
 import Create from "../components/Events/Create";
+import SubNav from "../components/SubNav";
 
+const EventsWrapper = styled.div`
+  height: calc(100vh - 60px);
+  position: relative;
+  width: 100%;
+`;
+
+const OutletWrapper = styled.div``;
 const Events = (props) => {
   const [state, setState] = useState(null);
   const [currentUserEvents, setCurrentUserEvents] = useState([]);
@@ -37,30 +45,17 @@ const Events = (props) => {
     {
       text: "View Event Calendar",
       icon: faCalendar,
-      action: () => {
-        setState("Calendar");
-      },
+      path: "calendar",
     },
     {
       text: "Search for Events",
       icon: faMagnifyingGlass,
-      action: () => {
-        setState("Search");
-      },
-    },
-    {
-      text: "Manage Your Events",
-      icon: faClipboardList,
-      action: () => {
-        setState("Manage");
-      },
+      path: "search",
     },
     {
       text: "Create a New Event",
       icon: faPlus,
-      action: () => {
-        setState("Create");
-      },
+      path: "new",
     },
   ];
 
@@ -75,26 +70,11 @@ const Events = (props) => {
     setActiveTab,
   } = useContext(UtilityContext);
 
-  useEffect(() => {
-    setSubTabData(subTabs);
-    setActiveTab(1);
-    return () => {
-      setSubTabData([]);
-    };
-  }, []);
-
   return (
-    <>
-      {{
-        Calendar: <Calendar />,
-
-        Search: <Search />,
-
-        Manage: <Manage />,
-
-        Create: <Create setstate={setState} />,
-      }[state] || <Calendar />}
-    </>
+    <EventsWrapper>
+      <Outlet />
+      <SubNav subTabData={subTabs} />
+    </EventsWrapper>
   );
 };
 

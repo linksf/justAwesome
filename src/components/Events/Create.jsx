@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import colors from "../../Utilities/colors";
-import { Link } from "react-router-dom";
+import { Link, redirect } from "react-router-dom";
 import ToolTip from "../../elements/ToolTip";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FirebaseContext } from "../../context/FirebaseContext";
@@ -24,12 +24,10 @@ import {
   Legend,
 } from "../../elements/forms.js";
 const Create = (props) => {
-  const { setstate } = props;
-  const { createEvent } = useContext(FirebaseContext);
-  const [formData, setFormData] = useState({
+  const blankForm = {
     name: "",
     description: "",
-    date: null,
+    date: "",
     dateObject: {},
     startTime: "",
     endTime: "",
@@ -40,17 +38,22 @@ const Create = (props) => {
     RSVPLimit: 0,
     options: {
       isPublic: false,
-      isVirtual: false,
-      isRecurring: false,
       isRSVPRequired: false,
       isRSVPLimited: false,
       allowGameSignups: false,
       allowGameVoting: false,
       allowGameScheduling: false,
+      allowGuestInvites: false,
     },
     attendees: [],
     games: [],
-  });
+  };
+
+  const { createEvent } = useContext(FirebaseContext);
+  const { setError, colors, activateToast, SEARCHSCOPES } = useContext(
+    UtilityContext
+  );
+  const [formData, setFormData] = useState({ ...blankForm });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -60,35 +63,15 @@ const Create = (props) => {
     e.preventDefault();
     const dateObject = convertDateStringToObject(formData.date);
     const eventData = { ...formData, dateObject: dateObject };
-    createEvent(eventData).then((res) => {
-      console.log(res);
-      setFormData({
-        name: "",
-        description: "",
-        date: null,
-        dateObject: {},
-        startTime: "",
-        endTime: "",
-        street: "",
-        city: "",
-        state: "",
-        zip: "",
-        RSVPLimit: 0,
-        options: {
-          isPublic: false,
-          isVirtual: false,
-          isRecurring: false,
-          isRSVPRequired: false,
-          isRSVPLimited: false,
-          allowGameSignups: false,
-          allowGameVoting: false,
-          allowGameScheduling: false,
-        },
-        attendees: [],
-        games: [],
+    createEvent(eventData)
+      .then((res) => {
+        console.log(res);
+        setFormData({ ...blankForm });
+        return redirect(`/events`);
+      })
+      .catch((err) => {
+        setError(err);
       });
-      setstate("Manage");
-    });
   };
   const convertDateStringToObject = (dateString) => {
     const [day, month, date, year, ...time] = new Date(dateString)

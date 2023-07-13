@@ -15,11 +15,16 @@ const Wrapper = styled.div`
 `;
 const Button = styled.button``;
 const Home = () => {
-  const { user, logOut } = useContext(FirebaseContext);
+  const { user, logOut, checkDbForGame } = useContext(FirebaseContext);
 
   return (
     <Wrapper>
       <Button onClick={logOut}>SignOut</Button>
+      <Button
+        onClick={() => checkDbForGame("random").then((res) => console.log(res))}
+      >
+        test
+      </Button>
     </Wrapper>
   );
 };

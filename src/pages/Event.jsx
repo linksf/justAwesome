@@ -21,23 +21,69 @@ import {
 } from "../elements/forms.js";
 import SubNav from "../components/SubNav";
 
-const Event = (props) => {
-  const { uid } = useParams();
+const Event = () => {
+  const { id } = useParams();
   const { error, setError, colors, activateToast, SEARCHSCOPES } = useContext(
     UtilityContext
   );
+  const { getEventById, user } = useContext(FirebaseContext);
+  const [state, setState] = useState({});
+  const getEvent = async () => {
+    const event = await getEventById(id);
+    setState(event);
+  };
 
-  useEffect(() => {}, [uid]);
+  useEffect(() => {
+    getEvent();
+  }, [id]);
 
   return (
     <>
-      <SubNav
-        subtabs={subTabs}
-        activesubtab={activeSubTab}
-        setactivesubtab={setActiveSubTab}
-      />
+      <h1>{state.name}</h1>
+      <p>{state.location}</p>
     </>
   );
 };
-
-export default Events;
+/*
+{ 
+        name: string, 
+        id: string,
+        description: string, 
+        image: string, 
+        startTime: date, 
+        endTime: date, 
+        location: string, 
+        attendees: [ 
+            {
+                person: reference, 
+                status: string 
+            } 
+        ] 
+        games: [ 
+            { 
+                name: string, 
+                description: string, 
+                minPlayers: number, 
+                maxPlayers: number, 
+                minPlayTime: number, 
+                maxPlayTime: number, 
+                minAge: number, 
+                owner: reference,
+                <startTime: date>,
+                <players: [reference]>,
+                <votes: number>,
+            } 
+        ], 
+        host: reference, 
+        options: { 
+            allowGameScheduling: boolean, 
+            allowGameVoting: boolean, 
+            allowGameVoting: boolean, 
+            isPublic: boolean,
+            isRSVPRequired: boolean, 
+            isRSVPLimited: boolean,
+            allowGuestInvites: boolean,
+            RSVPMax: number,
+        }
+*/
+export default Event;
