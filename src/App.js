@@ -19,9 +19,10 @@ import Search from "./components/Events/Search";
 import Create from "./components/Events/Create";
 import Event from "./pages/Event";
 import Game from "./pages/Game";
+    
 const Wrapper = styled.div`
   width: 100vw;
-  height: 100%;
+  height: 100vh;
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -66,7 +67,7 @@ align-items: flex-start;
 const PageContainer = styled.div` 
 //width: calc(100vw - 40px);
   //max-width: 600px;
-  margin: 40px auto;
+  margin: 40px 0 auto auto;
   //position: relative;
   //top: 50px;
   min-height: calc(100vh - 40px);

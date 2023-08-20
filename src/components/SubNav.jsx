@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const Icon = styled(FontAwesomeIcon)`
   cursor: pointer;
-  color: white;
+  color: ${colors.highlightYellow};
   border-radius: 50%;
   height: 30px;
   margin: 25px;
@@ -23,7 +23,7 @@ const Icon = styled(FontAwesomeIcon)`
 const NavWrapper = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-between;
   position: absolute;
   bottom: 0px;
   left: 0;
@@ -32,19 +32,17 @@ const NavWrapper = styled.div`
   z-index: 999;
   backdrop-filter: blur(5px);
   padding: 30px auto;
-  background-color: #ffff0022;
+  background-color: transparent;
 
   //media queries for all common screen sizes (mobile, tablet, desktop). change the max-width to adjust the screen size
-  @media (max-width: 768px) {
+  @media (min-width: 768px) {
     max-height: 50px;
-    width: 100%;
-    padding: 0px auto;
+    width: 600px;
   }
 
-  @media (max-width: 1024px) {
+  @media (min-width: 1024px) {
     height: 50px;
-    width: 100%;
-    padding: 0px auto;
+    width: 800px;
   }
 `;
 

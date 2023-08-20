@@ -85,7 +85,8 @@ useEffect(() => {
     }
     }, [error]);
   const tabs = ["Home", "Events", "Games", "Profile"];
-const value = { colors, error, setError, TOASTTYPES, activateToast, toastInfo, hideToast, SEARCHSCOPES, subTabData, setSubTabData, activeTab, setActiveTab, tabs, generateUUID};
+  const EVENT_STATUS = {invited: 1, declined: 0, accepted: 2}
+const value = { colors, error, setError, TOASTTYPES, activateToast, toastInfo, hideToast, SEARCHSCOPES, subTabData, setSubTabData, activeTab, setActiveTab, tabs, generateUUID, EVENT_STATUS};
   return (
     <UtilityContext.Provider value={value}>
       {children}

@@ -1,7 +1,6 @@
 import { FirebaseContext } from "../../context/FirebaseContext";
 import { useContext, useState, useEffect } from "react";
 import { UtilityContext } from "../../context/UtilityContext";
-
 import { BoardgameContext } from "../../context/BoardgameContext";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

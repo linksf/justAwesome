@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import {
+  onSnapshot,
   where,
   getFirestore,
   collection,
@@ -24,7 +25,8 @@ import {
   signOut,
 } from "firebase/auth";
 import { UtilityContext } from "./UtilityContext";
-import axios from "axios"
+import axios from "axios";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 //create context
 export const FirebaseContext = createContext();
 
@@ -44,20 +46,25 @@ export default function FirebaseProvider({ children }) {
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
   const db = getFirestore(app);
+  const storage = getStorage(app);
   const auth = getAuth(app);
   const [user, setUser] = useState(null);
   const [userAuth, setUserAuth] = useState(null);
   const [userDocRef, setUserDocRef] = useState(null);
-  const { setError, activateToast, TOASTTYPES, generateUUID } = useContext(
-    UtilityContext
-  );
+  const {
+    setError,
+    activateToast,
+    TOASTTYPES,
+    generateUUID,
+    EVENT_STATUS,
+  } = useContext(UtilityContext);
   const userCollection = collection(db, "users");
-  
-  useEffect(()=>{
+
+  useEffect(() => {
     if (user === null) return;
     const docRef = doc(db, "users", user.email);
-    setUserDocRef(docRef)
-  }, [user])
+    setUserDocRef(docRef);
+  }, [user]);
 
   onAuthStateChanged(auth, (userData) => {
     //console.log(userData)
@@ -71,7 +78,13 @@ export default function FirebaseProvider({ children }) {
       }
       if (user === null) {
         getUser({ uid: uid, email: email })
-          .then((docSnap) => setUser(docSnap.data()))
+          .then((docSnap) => {
+            const unSub = onSnapshot(doc(db, "users", email), (userDoc) => {
+              console.log("user updated");
+              setUser(userDoc.data());
+            });
+            return unSub;
+          })
           .catch((err) => setError(err));
       }
       // ...
@@ -110,6 +123,27 @@ export default function FirebaseProvider({ children }) {
       .catch((err) => {
         console.log(err.message);
       });
+  };
+
+  const uploadImageToStorage = async (file, category) => {
+    if (!file) return Promise.resolve("");
+    const imageRef = ref(storage, `/${category}/images/${file.name}`);
+    try {
+      const snapshot = await uploadBytes(imageRef, file);
+      const urlPromise = await getDownloadURL(imageRef);
+      return Promise.resolve(urlPromise);
+    } catch (error) {
+      console.error(error);
+      setError(error);
+      return Promise.reject(error);
+    }
+  };
+
+  const getRandomGameImageUrl = async () => {
+    const num = Math.ceil(Math.random() * 9);
+    const imageRef = ref(storage, `/events/images/games${num}.png`);
+    const urlPromise = await getDownloadURL(imageRef);
+    return Promise.resolve(urlPromise);
   };
 
   const addGameToDb = async (gameData) => {
@@ -165,7 +199,7 @@ export default function FirebaseProvider({ children }) {
       await addGameToDb(gameData);
       const docSnap = await getDoc(userDocRef);
       const games = docSnap.data().games;
-      const gameDocRef = doc(db, "games", gameData.id)
+      const gameDocRef = doc(db, "games", gameData.id);
       if (games.includes(gameDocRef)) {
         activateToast(
           "That game is already in your collection",
@@ -175,27 +209,26 @@ export default function FirebaseProvider({ children }) {
         return;
       }
       updateDoc(userDocRef, { games: arrayUnion(gameDocRef) }).then(() =>
-        activateToast(
-          "game added to your collection",
-          TOASTTYPES.SUCCESS,
-          3000
-        )
+        activateToast("game added to your collection", TOASTTYPES.SUCCESS, 3000)
       );
     } catch (err) {
+      console.error(err);
       setError(err);
     }
   };
 
   const checkDbForGame = (gameID) => {
-      const gameDocRef= doc(db, "games", gameID);
-      getDoc(gameDocRef).then((gameDocSnap)=>{;
-      if (gameDocSnap.exists()) {
-        return true;
-      }
-      return false
-    }).catch((err) => {
-      setError(err);
-    })
+    const gameDocRef = doc(db, "games", gameID);
+    getDoc(gameDocRef)
+      .then((gameDocSnap) => {
+        if (gameDocSnap.exists()) {
+          return true;
+        }
+        return false;
+      })
+      .catch((err) => {
+        setError(err);
+      });
   };
   // const checkDbForGame = async (gameID) => {
   //   const gameDocRef = doc(db, "games", gameID);
@@ -213,24 +246,37 @@ export default function FirebaseProvider({ children }) {
   const createEvent = async (eventInfo) => {
     const UUID = generateUUID();
     const eventDocRef = doc(db, "events", UUID);
+    eventInfo.attendees.push({
+      name: user.name,
+      id: user.email,
+      reference: userDocRef,
+      status: "host"
+    });
     setDoc(eventDocRef, { ...eventInfo, host: userDocRef, UUID: UUID })
       .then((event) => {
         console.log(event);
         activateToast("Event created", TOASTTYPES.SUCCESS, 3000);
-        updateDoc(userDocRef, { events: arrayUnion(event) });
+        updateDoc(userDocRef, { events_hosting: arrayUnion(eventDocRef) });
       })
       .catch((err) => setError(err));
   };
 
   const getCurrentUserEvents = async () => {
     try {
-      const eventsDocs = await Promise.all(
-        user.events.map((eventRef) => getDoc(eventRef))
+      const hostingDocs = await Promise.all(
+        user.events_hosting.map((eventRef) => getDoc(eventRef))
       );
-      const eventsList = eventsDocs.map((event) => event.data());
+      const attendingDocs = await Promise.all(
+        user.events_attending.map((eventRef) => getDoc(eventRef))
+      );
+      const eventsList = [
+        ...hostingDocs.map((event) => event.data()),
+        ...attendingDocs.map((event) => event.data()),
+      ];
       console.log(eventsList);
       return eventsList;
     } catch (err) {
+      console.error(err);
       setError(err);
     }
   };
@@ -277,6 +323,7 @@ export default function FirebaseProvider({ children }) {
   //     });
   //   }
   // }
+
   const getUser = async (userData) => {
     const { uid, email } = userData;
     const docRef = doc(db, "users", email);
@@ -291,7 +338,8 @@ export default function FirebaseProvider({ children }) {
         displayName: "",
         photoURL: "",
         games: [],
-        events: [],
+        events_hosting: [],
+        events_attending: [],
       },
       { merge: true }
     )
@@ -327,16 +375,60 @@ export default function FirebaseProvider({ children }) {
     const docRef = doc(db, "events", id);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      return docSnap.data();
-    } else {
-      return null;
+      const event = docSnap.data();
+      console.dir(user.id);
+      const matches = event.attendees.filter(
+        (attendee) => attendee.id == user.email
+      );
+      if (matches.length > 0 || event.host.id === user.email) {
+        return event;
+      } else {
+        return null;
+      }
     }
   };
- const clientId = "usRohsToAJ";
+
+  const groupEventInvite = async (emailsString, eventId) => {
+    const emailsArray = emailsString.split(",");
+    const needToJoin = [];
+    const attendeesArray = [];
+    console.log(emailsArray)
+    const eventDocRef = doc(db, "events", eventId);
+    for (let email of emailsArray) {
+      console.log(email)
+      const userDocRef = doc(db, "users", email);
+      const docSnap = await getDoc(userDocRef);
+      console.log(docSnap.data())
+      if (!docSnap.exists()) {
+        needToJoin.push(email);
+      } 
+      else {
+        const { displayName } = docSnap.data();
+        await updateDoc(eventDocRef, {attendees: arrayUnion({
+          id: email,
+          name: displayName,
+          reference: userDocRef,
+          status: EVENT_STATUS.invited,
+        })});
+        await updateDoc(userDocRef, {
+          events: arrayUnion({
+            reference: eventDocRef,
+            status: EVENT_STATUS.invited,
+          }),
+        });
+      }
+    }
+    console.log(needToJoin)
+  };
+  const clientId = "usRohsToAJ";
   const baseUrl = "https://api.boardgameatlas.com/api/";
 
+  const isCurrentUserHost = (eventId) => {
+    // console.log(userDocRef)
+    // console.log(eventDocRef)
+    // return userDocRef == e
+  };
   const searchForGameByTitle = (title, scope, data) => {
-    
     const URL = `${baseUrl}search?name=${title}&client_id=${clientId}`;
     console.log(URL);
     return axios
@@ -348,7 +440,9 @@ export default function FirebaseProvider({ children }) {
       });
   };
   const value = {
+    groupEventInvite,
     user,
+    userDocRef,
     userAuth,
     signUp,
     signIn,
@@ -360,7 +454,10 @@ export default function FirebaseProvider({ children }) {
     getGamesByUid,
     getEventById,
     checkDbForGame,
-    searchForGameByTitle
+    searchForGameByTitle,
+    uploadImageToStorage,
+    isCurrentUserHost,
+    getRandomGameImageUrl,
   };
   return (
     <FirebaseContext.Provider value={value}>

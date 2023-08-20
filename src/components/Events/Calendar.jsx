@@ -13,23 +13,25 @@ const Calendar = (props) => {
   const { getCurrentUserEvents, user } = useContext(FirebaseContext);
   const { setError, activateToast } = useContext(UtilityContext);
   const [eventsList, setEventsList] = useState([]);
+
+  const fetchEvents = () => {
+    if (!(user && (user.events_hosting || user.events_attending))) return;
+    getCurrentUserEvents()
+      .then((events) => {
+        console.dir(events);
+        setEventsList(events);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(err);
+      });
+  };
   useEffect(() => {
-    const fetchEvents = () => {
-      if (!(user && user.events)) return;
-      getCurrentUserEvents()
-        .then((events) => {
-          console.dir(events);
-          setEventsList(events);
-        })
-        .catch((err) => {
-          setError(err);
-        });
-    };
     fetchEvents();
-  }, [user.events]);
+  }, [user?.events_hosting, user?.events_attending]);
   return (
     <>
-      {eventsList.length > 0
+      {eventsList && eventsList.length > 0
         ? eventsList.map((event, i) => <EventCard key={i} event={event} />)
         : null}
     </>

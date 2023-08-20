@@ -8,6 +8,7 @@ import { FirebaseContext } from "../../context/FirebaseContext";
 import { BoardgameContext } from "../../context/BoardgameContext";
 import { UtilityContext } from "../../context/UtilityContext";
 import {
+  TextArea,
   FormWrapper,
   Form,
   Header,
@@ -23,6 +24,17 @@ import {
   Fieldset,
   Legend,
 } from "../../elements/forms.js";
+import genericImage1 from "../../images/games1.jpg";
+import genericImage2 from "../../images/games2.jpg";
+import genericImage3 from "../../images/games3.jpg";
+import genericImage4 from "../../images/games4.jpg";
+import genericImage5 from "../../images/games5.jpg";
+import genericImage6 from "../../images/games6.png";
+import genericImage7 from "../../images/games7.png";
+import genericImage8 from "../../images/games8.png";
+import genericImage9 from "../../images/games9.png";
+import genericImage10 from "../../images/games10.png";
+
 const Create = (props) => {
   const blankForm = {
     name: "",
@@ -49,20 +61,39 @@ const Create = (props) => {
     games: [],
   };
 
-  const { createEvent } = useContext(FirebaseContext);
+  const {
+    createEvent,
+    uploadImageToStorage,
+    getRandomGameImageUrl,
+  } = useContext(FirebaseContext);
   const { setError, colors, activateToast, SEARCHSCOPES } = useContext(
     UtilityContext
   );
   const [formData, setFormData] = useState({ ...blankForm });
-
+  const [imageFile, setImageFile] = useState(null);
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleFileChange = (e) => {
+    setImageFile(e.target.files[0]);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    let imageUrl;
     const dateObject = convertDateStringToObject(formData.date);
-    const eventData = { ...formData, dateObject: dateObject };
+    if (imageFile) {
+      imageUrl = await uploadImageToStorage(imageFile, "events");
+    } else {
+      imageUrl = await getRandomGameImageUrl();
+    }
+    const eventData = {
+      ...formData,
+      dateObject: dateObject,
+      image: imageUrl,
+    };
+
     createEvent(eventData)
       .then((res) => {
         console.log(res);
@@ -100,6 +131,7 @@ const Create = (props) => {
         Event Name
       </Label>
       <Input
+        required
         column="3/6"
         type="text"
         name="name"
@@ -112,6 +144,7 @@ const Create = (props) => {
         Date
       </Label>
       <Input
+        required
         column="7/9"
         type="date"
         name="date"
@@ -123,12 +156,15 @@ const Create = (props) => {
       <Label column="1/3" htmlFor="description">
         Description
       </Label>
-      <Input
+      <TextArea
+        required
+        width="900px"
         column="3/9"
-        type="text"
         name="description"
         id="description"
-        placeholder="Description"
+        placeholder=""
+        rows="4"
+        cols="20"
         value={formData.description}
         onChange={handleChange}
       />
@@ -137,6 +173,7 @@ const Create = (props) => {
         Start Time
       </Label>
       <Input
+        required
         column="3/5"
         type="time"
         name="startTime"
@@ -161,6 +198,7 @@ const Create = (props) => {
         Street
       </Label>
       <Input
+        required
         column="2/9"
         type="text"
         name="street"
@@ -173,6 +211,7 @@ const Create = (props) => {
         City
       </Label>
       <Input
+        required
         column="2/4"
         type="text"
         name="city"
@@ -185,6 +224,7 @@ const Create = (props) => {
         State
       </Label>
       <Input
+        required
         column="5/6"
         type="text"
         name="state"
@@ -197,6 +237,7 @@ const Create = (props) => {
         Zip
       </Label>
       <Input
+        required
         column="7/9"
         type="text"
         name="zip"
@@ -204,6 +245,16 @@ const Create = (props) => {
         placeholder="Zip"
         value={formData.zip}
         onChange={handleChange}
+      />
+      <Label column="1/3" htmlFor="file">
+        Upload Image:
+      </Label>
+      <Input
+        column="3/6"
+        type="file"
+        name="file"
+        id="file"
+        onChange={handleFileChange}
       />
       <Fieldset column="1/9">
         <Legend>Options</Legend>
@@ -245,6 +296,7 @@ const Create = (props) => {
             <Label htmlFor="RSVPLimit">
               Max Attendies:
               <Input
+                required
                 type="number"
                 name="RSVPLimit"
                 id="RSVPLimit"

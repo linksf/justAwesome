@@ -107,7 +107,11 @@ const Text = styled.p`
 const Span = styled.span`
   color: #f56530;
 `;
-
+const TextArea = styled.textarea`
+width: ${({width})=>width || null};
+height: ${({height})=>height || null};
+max-width: 100
+`
 const Checkbox = styled.input`
   grid-column:  ${props => props.column || "1/2"};
   justify-self: flex-start;
@@ -141,4 +145,4 @@ const Fieldset = styled.fieldset`
 `;
 const Legend = styled.legend``;
 const Option = styled.option``;
-export {FormWrapper, Form, Header, Input, Label, Button, Text, Span, Icon, Checkbox, Select, Option, Collection, Fieldset, Legend}
+export {FormWrapper, Form, Header, Input, Label, Button, Text, Span, Icon, Checkbox, Select, Option, Collection, Fieldset, Legend, TextArea}

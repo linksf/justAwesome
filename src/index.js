@@ -6,7 +6,9 @@ import FirebaseProvider from "./context/FirebaseContext"
 import UtilityProvider from "./context/UtilityContext"
 import BoardgameProvider from './context/BoardgameContext';
 import { BrowserRouter } from "react-router-dom";
+import "./index.css"
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
 root.render(
   <React.StrictMode>
     <BrowserRouter>

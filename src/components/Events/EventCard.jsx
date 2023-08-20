@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import colors from "../../Utilities/colors";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -110,7 +111,9 @@ const EventDate = styled.h3``;
 const EventDescription = styled.p``;
 const EventAttendees = styled.p``;
 const EventCard = ({ event, isexpanded }) => {
+  const { isCurrentUserHost, user, userDocRef } = useContext(FirebaseContext);
   const {
+    UUID,
     name,
     dateObject,
     startTime,
@@ -125,6 +128,12 @@ const EventCard = ({ event, isexpanded }) => {
     host,
   } = event;
   const { month, day, date, year } = dateObject;
+  const navigate = useNavigate();
+  const editEvent = () => {
+    navigate("/events/" + UUID);
+  };
+
+  const isUserHost = () => userDocRef.id == host.id;
 
   return (
     <CardWrapper>
@@ -137,7 +146,9 @@ const EventCard = ({ event, isexpanded }) => {
         <EventLocation>{`${street} ${city}`}</EventLocation>
         <EventTime>{`${startTime} - ${endTime}`}</EventTime>
         <EventCardActions>
-          <ActionIcon icon={faPen} />
+          {isUserHost() ? (
+            <ActionIcon icon={faPen} onClick={editEvent} />
+          ) : null}
           <ActionIcon icon={faEnvelope} />
         </EventCardActions>
       </EventCardBody>
