@@ -33,13 +33,13 @@ export const FirebaseContext = createContext();
 //create provider
 export default function FirebaseProvider({ children }) {
   const firebaseConfig = {
-    apiKey: "AIzaSyConL1X3Yrjk4yQjAcx5x63sLmb3D5ay9Y",
-    authDomain: "just-awesome-game-nights.firebaseapp.com",
-    projectId: "just-awesome-game-nights",
-    storageBucket: "just-awesome-game-nights.appspot.com",
-    messagingSenderId: "838131575159",
-    appId: "1:838131575159:web:b13cb3679befb92ca49972",
-    measurementId: "G-LWS93CTE34",
+    apiKey: "AIzaSyCxilvEzhx5243-l1OwIezF--D1t2kU59Y",
+    authDomain: "justawesome-4a997.firebaseapp.com",
+    projectId: "justawesome-4a997",
+    storageBucket: "justawesome-4a997.appspot.com",
+    messagingSenderId: "1010464826067",
+    appId: "1:1010464826067:web:e9449cc98667d16f672a26",
+    measurementId: "G-HNZT7XH9JW"
   };
 
   // Initialize Firebase
@@ -363,7 +363,7 @@ export default function FirebaseProvider({ children }) {
           headline: "Success",
           message: "Signed in",
           type: TOASTTYPES.SUCCESS,
-          duration: 3000,
+          duration: 1500,
         });
       })
       .catch((err) => {
@@ -385,6 +385,9 @@ export default function FirebaseProvider({ children }) {
       } else {
         return null;
       }
+    }
+    else {
+      setError("Event not found");
     }
   };
 

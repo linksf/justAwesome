@@ -45,10 +45,10 @@ const Games = (props) => {
   );
   const [searchScope, setSearchScope] = useState(SEARCHSCOPES.ALL);
   const [searchResults, setSearchResults] = useState([]);
-  const { searchForGameByTitle } = useContext(FirebaseContext);
+  const { getGameData } = useContext(BoardgameContext);
   const [userNameSearch, setUserNameSearch] = useState("");
   const [eventIdSearch, seteventIdSearch] = useState("");
-
+  
   const handleChange = (e) => {
     const name = e.target.name;
     switch (name) {
@@ -64,47 +64,21 @@ const Games = (props) => {
       default:
         break;
     }
-  };
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const data =
-      searchScope === SEARCHSCOPES.ALL
-        ? null
-        : searchScope === SEARCHSCOPES.USER
-        ? userNameSearch
-        : eventIdSearch;
-    searchForGameByTitle(gameTitleSearch, searchScope, data)
-      .then((res) => {
-        const games = [];
-        console.log(res);
-        res.forEach((game) => {
-          games.push({
-            name: game?.name,
-            id: game?.id,
-            year_published: game?.year_published,
-            primary_publisher: game?.primary_publisher?.name,
-            id: game?.id,
-            min_players: game?.min_players,
-            max_players: game?.max_players,
-            min_playtime: game?.min_playtime,
-            max_playtime: game?.max_playtime,
-            min_age: game?.min_age,
-            description_preview: game?.description_preview,
-            thumb_url: game?.thumb_url,
-            image_url: game?.image_url,
-            mechanics: game?.mechanics,
-            categories: game?.categories,
-          });
-        });
-        console.log(games);
-        setSearchResults(games);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError(err);
-      });
-  };
+  }
 
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    fetchGame(gameTitleSearch)
+    // const data = await getGameData(gameTitleSearch)
+    // console.log(data)
+  }
+
+  const fetchGame = async (gameTitle) => {
+    const xmlData = await fetch(`https://boardgamegeek.com/xmlapi/search?search=${gameTitle}`, {mode: "no-cors"})
+    console.log(xmlData)
+    // const jsonData = await xmlData.json()
+    // console.log(jsonData)
+  }
   return (
     <>
       <Section bgcolor={colors.white}>

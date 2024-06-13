@@ -71,7 +71,7 @@ const GameActions = styled.div`
 const Games = (props) => {
   const [gameTitleSearch, setGameTitleSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const { searchForGameByTitle } = useContext(BoardgameContext);
+  const { getGameData } = useContext(BoardgameContext);
   const { error, setError, colors, activateToast } = useContext(UtilityContext);
 
   const handleChange = (e) => {
@@ -80,7 +80,7 @@ const Games = (props) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    searchForGameByTitle(gameTitleSearch)
+    getGameData(gameTitleSearch)
       .then((res) => {
         console.log(Array.isArray(res));
         const games = [];
