@@ -38,14 +38,13 @@ const Icon = styled(FontAwesomeIcon)`
   }
 `;
 const GameListItem = ({ game, index }) => {
-  const { name, year_published, primary_publisher, id } = game;
+  const { name, yearPublished, id } = game;
   const { colors } = useContext(UtilityContext);
   const { addGameToCurrentUser } = useContext(FirebaseContext);
   return (
     <GameListItemWrapper colors={colors} index={index}>
       <GameInfo bold={1}>{name}</GameInfo>
-      <GameInfo>{year_published}</GameInfo>
-      <GameInfo>{primary_publisher}</GameInfo>
+      <GameInfo>{yearPublished}</GameInfo>
       <GameActions>
         <Icon
           icon={faPlusCircle}

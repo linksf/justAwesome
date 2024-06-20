@@ -40,15 +40,15 @@ const Results = styled.div`
 const Icon = styled(FontAwesomeIcon)``;
 const Games = (props) => {
   const [gameTitleSearch, setGameTitleSearch] = useState("");
-  const { error, setError, colors, activateToast, SEARCHSCOPES } = useContext(
-    UtilityContext
-  );
-  const [searchScope, setSearchScope] = useState(SEARCHSCOPES.ALL);
   const [searchResults, setSearchResults] = useState([]);
-  const { getGameData } = useContext(BoardgameContext);
   const [userNameSearch, setUserNameSearch] = useState("");
   const [eventIdSearch, seteventIdSearch] = useState("");
   
+  const { error, setError, colors, activateToast, SEARCHSCOPES } =
+  useContext(UtilityContext);
+  const [searchScope, setSearchScope] = useState(SEARCHSCOPES.ALL);
+  const { getGameData, searchGameByName } = useContext(BoardgameContext);
+
   const handleChange = (e) => {
     const name = e.target.name;
     switch (name) {
@@ -64,21 +64,24 @@ const Games = (props) => {
       default:
         break;
     }
-  }
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    fetchGame(gameTitleSearch)
+    e.preventDefault();
+    const itemArray = await searchGameByName(gameTitleSearch);
+    setSearchResults(itemArray);
     // const data = await getGameData(gameTitleSearch)
     // console.log(data)
-  }
+  };
 
   const fetchGame = async (gameTitle) => {
-    const xmlData = await fetch(`https://boardgamegeek.com/xmlapi/search?search=${gameTitle}`, {mode: "no-cors"})
-    console.log(xmlData)
+    const xmlData = await fetch(
+      `http://localhost:8080/https://boardgamegeek.com/xmlapi/search?search=${gameTitle}&page=1&pagesize=10`
+    );
+    console.log(xmlData);
     // const jsonData = await xmlData.json()
     // console.log(jsonData)
-  }
+  };
   return (
     <>
       <Section bgcolor={colors.white}>
@@ -143,9 +146,7 @@ const Games = (props) => {
         </Form>
       </Section>
       {searchResults.length > 0 ? (
-        <Results>
-          <GameList games={searchResults} />
-        </Results>
+        <GameList games={searchResults}/>
       ) : null}
     </>
   );

@@ -72,18 +72,20 @@ const generateUUID = () => {
 
 const [error, setError] = useState(null);
  const [activeTab, setActiveTab] = useState(0);
-useEffect(() => {
+
+ useEffect(() => {
   if (error) {
     activateToast({message: error.message, headline: "error", type: TOASTTYPES.ERROR, duration: 3000});
     }}, [error]);
 
     useEffect(()=>{
       if (toastInfo.showToast) {
-      activateToast(toastInfo)
-      const timeout = setTimeout(hideToast, 3000);
-      return clearTimeout(timeout);
-    }
+        activateToast(toastInfo)
+        const timeout = setTimeout(hideToast, 3000);
+        return clearTimeout(timeout);
+      } 
     }, [error]);
+
   const tabs = ["Home", "Events", "Games", "Profile"];
   const EVENT_STATUS = {invited: 1, declined: 0, accepted: 2}
 const value = { colors, error, setError, TOASTTYPES, activateToast, toastInfo, hideToast, SEARCHSCOPES, subTabData, setSubTabData, activeTab, setActiveTab, tabs, generateUUID, EVENT_STATUS};
