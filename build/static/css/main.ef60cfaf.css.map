@@ -1,1 +1,0 @@
-{"version":3,"file":"static/css/main.ef60cfaf.css","mappings":"AAAA,EAGE,qBAAsB,CAFtB,QAAS,CACT,SAEF,CCJA,QAEE,kCAAoC,CADpC,uBAEF","sources":["App.css","components/nav.css"],"sourcesContent":["* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n}\n",".active {\n  color: #fff000 !important;\n  background-color: #0055a4 !important;\n}\n"],"names":[],"sourceRoot":""}

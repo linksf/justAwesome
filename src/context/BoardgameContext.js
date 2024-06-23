@@ -36,9 +36,9 @@ const BoardgameProvider = ({ children }) => {
   }
 
   function getGameDataById(id) {
-    let parser, xmlDoc
+    let parser, xmlDoc, html, htmlParser, htmlDoc;
     console.log("getGameData", id);
-    const url = `http://localhost:8080/https://www.boardgamegeek.com/xmlapi2/thing?id=${id}`;
+    const url = `https://boardgamegeek.com/xmlapi/boardgame/${id}`;
     let req = new XMLHttpRequest();
     req.open(
       "GET",
@@ -49,6 +49,9 @@ const BoardgameProvider = ({ children }) => {
     let text = req.responseText;
     parser = new DOMParser();
     xmlDoc = parser.parseFromString(text, "text/xml");
+    html = xmlDoc.querySelector("description").textContent
+    htmlParser = new DOMParser()
+    htmlDoc = htmlParser.parseFromString(html, "text/html")
     const gameObj = {
       name: null,
       id: null, 
@@ -56,7 +59,7 @@ const BoardgameProvider = ({ children }) => {
       minPlayers: null,
       maxPlayers: null,
       playTime: null,
-      description: null,
+      description: htmlDoc.body.textContent,
       thumbnail: null,
       image: null
     };
@@ -68,8 +71,6 @@ const BoardgameProvider = ({ children }) => {
       gameObj.id = xmlDoc.querySelector('item')?.getAttribute("id") ?? null
       gameObj.thumbnail = xmlDoc.querySelector('thumbnail')?.textContent ?? null
       gameObj.image = xmlDoc.querySelector('image')?.textContent ?? null
-      
-      console.dir(gameObj)
     // console.log(xmlDoc.getElementsByTagName("name")[0].getAttribute("value"));
   return gameObj;
   }

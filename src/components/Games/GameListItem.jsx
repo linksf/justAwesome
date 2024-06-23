@@ -6,6 +6,8 @@ import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlusCircle, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import ToolTip from "../../elements/ToolTip";
+import GameCard from "./GameCard copy";
+import {useNavigate} from "react-router-dom";
 
 const GameListItemWrapper = styled.div`
   width: 100%;
@@ -16,6 +18,7 @@ const GameListItemWrapper = styled.div`
     props.index % 2 !== 0 ? "#ecf0f1" : "#ffffff"};
   color: ${(props) => props.colors.primary};
 `;
+
 const GameInfo = styled.p`
   margin: 0;
   padding: 0;
@@ -29,6 +32,7 @@ const GameActions = styled.div`
   justify-content: space-around;
   align-items: center;
 `;
+
 const Icon = styled(FontAwesomeIcon)`
   font-size: 1.5rem;
   color: ${(props) => props.color};
@@ -37,10 +41,29 @@ const Icon = styled(FontAwesomeIcon)`
     cursor: pointer;
   }
 `;
+
 const GameListItem = ({ game, index }) => {
   const { name, yearPublished, id } = game;
   const { colors } = useContext(UtilityContext);
   const { addGameToCurrentUser } = useContext(FirebaseContext);
+  const { getGameDataById } = useContext(BoardgameContext);
+  const navigate = useNavigate();
+  const [gameData, setGameData] = useState(null);
+
+  const getGameInfo = () => {
+    if (!gameData) {
+      const data = getGameDataById(id)
+      console.log(data)
+      setGameData(data);
+    } else {
+      setGameData(null);
+    }
+  }
+
+  const goToGame = () => {
+    navigate(`/games/${game.id}`);
+  }
+
   return (
     <GameListItemWrapper colors={colors} index={index}>
       <GameInfo bold={1}>{name}</GameInfo>
@@ -53,8 +76,9 @@ const GameListItem = ({ game, index }) => {
             addGameToCurrentUser(game);
           }}
         />
-        <Icon icon={faInfoCircle} color={colors.highlightGreen} />
+        <Icon icon={faInfoCircle} color={colors.highlightGreen} onClick={goToGame} />
       </GameActions>
+      {gameData && <GameCard gameObj={gameData} closer={(e)=>setGameData(null)}/>}
     </GameListItemWrapper>
   );
 };

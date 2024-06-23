@@ -123,14 +123,15 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/home" element={<Home />} />
-              <Route path="/games" element={<Games />} />
+              <Route path="/games" element={<Games />}/>
+              <Route path="/game" element={<Game />} />
               <Route path="/events" element={<Events />}>
                 <Route path=":id" element={<Event/>} />
                 <Route path="calendar" element={<Calendar />} />
                 <Route path="new" element={<Create />} />
                 <Route path="search" element={<Search />} />
                 </Route>
-              <Route path="/games/:id" element={<Game />} />
+              
               <Route path="/profile" element={<Profile />} />
             </Routes>
         </AppContainer>

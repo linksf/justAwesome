@@ -22,13 +22,37 @@ import {
 
 const Game = (props) => {
   const { id } = useParams();
-  const { error, setError, colors, activateToast, SEARCHSCOPES } = useContext(
-    UtilityContext
+  const { data, setData } = useState(null);
+  const { error, setError, colors, activateToast, SEARCHSCOPES } =
+    useContext(UtilityContext);
+  const { getGameDataById } = useContext(BoardgameContext);
+
+  useEffect(() => {
+    const gameData = getGameDataById(id);
+    console.log(gameData);
+    setData(gameData);
+  }, [id]);
+
+  return (
+    <>
+      (data === null ? null : (
+      <Header>
+        <h1>{data?.name}</h1>
+      </Header>
+      <div>
+        <image src={data?.thumbnail} alt="game" />
+      </div>
+      <div>
+        <h2>Year Publis hed: {data?.yearPublished}</h2>
+        <h2>Min Players: {data?.minPlayers}</h2>
+        <h2>Max Players: {data?.maxPlayers}</h2>
+      </div>
+      <div>
+        <p>Description: {data?.description}</p>
+      </div>
+      ))
+    </>
   );
-
-  useEffect(() => {}, [id]);
-
-  return <></>;
 };
 
 export default Game;

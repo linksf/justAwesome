@@ -11,6 +11,7 @@ import {
   faCircleQuestion,
   faCircle,
   faEyeCircle,
+  faClose
 } from "@fortawesome/free-solid-svg-icons";
 
 const GameCardWrapper = styled.div`
@@ -26,7 +27,10 @@ const GameCardWrapper = styled.div`
   align-items: center;
   background: white;
   padding: 0;
-  margin: 10px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 `;
 
 const Title = styled.h2`
@@ -71,6 +75,16 @@ const Icon = styled(FontAwesomeIcon)`
   color: ${(props) => props.color};
   cursor: pointer;
 `;
+
+const CloseIcon = styled(FontAwesomeIcon)`
+  font-size: 24px;
+  color: ${(props) => props.color};
+  cursor: pointer;
+  position: relative;
+  top: 5px;
+  right: 5px;
+`;
+
 const Row = styled.div`
   width: 100%;
   display: flex;
@@ -78,6 +92,7 @@ const Row = styled.div`
   justify-content: space-between;
   align-items: center;
 `;
+
 const Footer = styled.div`
   grid-area: footer;
   display: flex;
@@ -91,33 +106,32 @@ const Footer = styled.div`
 `;
 
 const GameCard = (props) => {
-  const { gameobject } = props;
+  const { gameObj, closer } = props;
   const {
     name,
-    year_published,
-    primary_publisher,
-    description_preview,
-    thumb_url,
+    yearPublished,
+    description,
+    thumbnail,
     id,
-  } = gameobject;
+  } = gameObj;
   const { colors, setError, activateToast } = useContext(UtilityContext);
 
   return (
     <GameCardWrapper colors={colors}>
       <Title colors={colors}>{name}</Title>
       <Row>
-        <Thumbnail src={thumb_url} />
+        <Thumbnail src={thumbnail} />
         <div>
-          <p>{year_published}</p>
-          <p>{primary_publisher}</p>
+          <p>{description}</p>
         </div>
       </Row>
       <UI colors={colors}>
-        <Icon color={colors.Primary} icon={faCirclePlus} />
+        <Icon color={colors.primary} icon={faCirclePlus} />
         <Icon color={colors.highlightGreen} icon={faCircleInfo} />
         <Icon color={colors.highlightRed} icon={faCircle} />
         <Icon color={colors.highlightYellow} icon={faCircle} />
       </UI>
+      <CloseIcon color={colors.highlightRed} icon={faClose} onClick={closer}/>
     </GameCardWrapper>
   );
 };
