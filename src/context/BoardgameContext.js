@@ -15,8 +15,10 @@ const BoardgameProvider = ({ children }) => {
   const [state, setState] = useState(null);
 
   function searchGameByName(name){
+    console.log("searchGameByName", name);
     let parser = new DOMParser
-    const url = `http://localhost:8080/https://www.boardgamegeek.com/xmlapi2/search?query=${name}`;
+    // const url = `http://localhost:8080/https://www.boardgamegeek.com/xmlapi2/search?query=${name}`;
+    const url = `https://www.boardgamegeek.com/xmlapi2/search?query=${name}`;
     let req = new XMLHttpRequest()
     req.open("GET", url, false)
     req.send(null)
@@ -24,7 +26,7 @@ const BoardgameProvider = ({ children }) => {
     let xmlDoc = parser.parseFromString(text, "text/xml")
     let totalResults = xmlDoc.querySelector("items").getAttribute("total")
     let items = xmlDoc.querySelectorAll("item")
-    const itemArray = []
+    let itemArray = []
     items.forEach((item=>{
       const itemObj = {}
       itemObj.name = item.querySelector("name").getAttribute("value")
@@ -61,13 +63,15 @@ const BoardgameProvider = ({ children }) => {
       playTime: null,
       description: htmlDoc.body.textContent,
       thumbnail: null,
-      image: null
+      image: null,
+      age: null
     };
-      gameObj.name = xmlDoc.querySelector('name[type="primary"]')?.getAttribute("value") ?? null
-      gameObj.year = xmlDoc.querySelector('yearpublished')?.getAttribute("value") ?? null
-      gameObj.minPlayers = xmlDoc.querySelector('minplayers')?.getAttribute("value") ?? null
-      gameObj.maxPlayers = xmlDoc.querySelector('maxplayers')?.getAttribute("value") ?? null
-      gameObj.playTime = xmlDoc.querySelector('playingtime')?.getAttribute("value") ?? null
+      gameObj.name = xmlDoc.querySelector('name[primary="true"]')?.textContent ?? null
+      gameObj.year = xmlDoc.querySelector('yearpublished')?.textContent ?? null
+      gameObj.minPlayers = xmlDoc.querySelector('minplayers')?.textContent ?? null
+      gameObj.maxPlayers = xmlDoc.querySelector('maxplayers')?.textContent ?? null
+      gameObj.age = xmlDoc.querySelector('age')?.textContent ?? null
+      gameObj.playTime = xmlDoc.querySelector('playingtime')?.textContent ?? null
       gameObj.id = xmlDoc.querySelector('item')?.getAttribute("id") ?? null
       gameObj.thumbnail = xmlDoc.querySelector('thumbnail')?.textContent ?? null
       gameObj.image = xmlDoc.querySelector('image')?.textContent ?? null

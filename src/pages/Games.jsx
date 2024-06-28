@@ -1,159 +1,176 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect} from "react";
 import styled from "styled-components";
-import { FirebaseContext } from "../context/FirebaseContext";
-import { BoardgameContext } from "../context/BoardgameContext";
-import { UtilityContext } from "../context/UtilityContext";
+import { FirebaseContext } from "../context/FirebaseContext.js";
+import { BoardgameContext } from "../context/BoardgameContext.js";
+import { UtilityContext } from "../context/UtilityContext.js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import GameList from "../components/Games/GameList.jsx";
 import {
-  faPlus,
-  faPlusCircle,
-  faInfoCircle,
-} from "@fortawesome/free-solid-svg-icons";
-import { Text, Span } from "../elements/forms.js";
+  FormWrapper,
+  Form,
+  Header,
+  Input,
+  Label,
+  Button,
+  Text,
+  Span,
+  Checkbox,
+  Select,
+  Option,
+} from "../elements/forms.js";
 import {
   PageWrapperGrid,
   PageWrapperFlex,
   Section,
-  Row,
 } from "../elements/layout.js";
-import GamePreview from "../components/GamePreview";
-import ToolTip from "../elements/ToolTip";
-import GameCard from "../components/GameCard";
-import GameList from "../components/GameList";
+import GamePreview from "../components/Games/GamePreview.jsx";
+import ToolTip from "../elements/ToolTip.jsx";
+import GameCard from "../components/Games/GameCard copy.jsx";
+import {useLocation, useParams} from "react-router-dom";
 
-const FormWrapper = styled.div``;
-const Form = styled.form`
-  padding: 10px;
+const Wrapper = styled.div`
+  overflow-y: scroll;
 `;
-const Header = styled.h3`
-  font-size: 1.5rem;
-  font-weight: 700;
-  text-align: center;
-  width: 100%;
-  margin: 0;
-  padding: 10px;
-  background-color: ${(props) => props.colors.highlightYellow};
-`;
-const Input = styled.input``;
-const Label = styled.label``;
-const Button = styled.button``;
-
-const Wrapper = styled(PageWrapperGrid)``;
 const Results = styled.div`
-  background-color: ${(props) => props.colors.white};
-  display: grid;
-  grid-template-collumns: 2fr 1fr 1fr 1fr;
+  display: flex;
   width: 100%;
-`;
-const Icon = styled(FontAwesomeIcon)`
-  font-size: 1.25rem;
-  color: ${(props) => props.color};
-  cursor: pointer;
-`;
-const GameListWrapper = styled.div`
-  width: 100%;
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-`;
-const GameInfo = styled.p`
-  margin: 0;
-  padding: 0;
-  font-size: 0.75rem;
-  font-weight: ${(props) => (props.bold ? "bold" : "normal")};
+  flex-wrap: wrap;
 `;
 
-const GameActions = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  align-items: center;
-`;
+const Icon = styled(FontAwesomeIcon)``;
 const Games = (props) => {
+  const location = useLocation();
   const [gameTitleSearch, setGameTitleSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const { getGameData } = useContext(BoardgameContext);
-  const { error, setError, colors, activateToast } = useContext(UtilityContext);
+  const [userNameSearch, setUserNameSearch] = useState("");
+  const [eventIdSearch, seteventIdSearch] = useState("");
+  
+  const { error, setError, colors, activateToast, SEARCHSCOPES } =
+  useContext(UtilityContext);
+  const [searchScope, setSearchScope] = useState(SEARCHSCOPES.ALL);
+  const { getGameData, searchGameByName } = useContext(BoardgameContext);
+  
+  const searchGame = async (gameTitle) => {
+    const itemArray = await searchGameByName(gameTitle);
+    setSearchResults(itemArray);
+  };
+  
+  useEffect(() => {
+    const queryParam = new URLSearchParams(location.search);
+     const searchTerm = queryParam.get("search");
+     if (searchTerm !== null){
+      console.log("searchTerm", searchTerm)
+      searchGame(searchTerm)
+     }
+    }, [location]);
 
   const handleChange = (e) => {
-    setGameTitleSearch(e.target.value);
-  };
+    const name = e.target.name;
+    switch (name) {
+      case "gameTitle":
+        setGameTitleSearch(e.target.value);
+        break;
+        case "userName":
+          setUserNameSearch(e.target.value);
+          break;
+          case "eventId":
+            seteventIdSearch(e.target.value);
+            break;
+            default:
+              break;
+            }
+          };
+          
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    getGameData(gameTitleSearch)
-      .then((res) => {
-        console.log(Array.isArray(res));
-        const games = [];
-        res.forEach((game) => {
-          games.push([game.name, game.year_published, game.primary_publisher]);
-        });
-        setSearchResults([...games]);
-      })
-      .catch((err) => {
-        setError(err);
-      });
+    const itemArray = await searchGameByName(gameTitleSearch);
+    setSearchResults(itemArray);
+    // const data = await getGameData(gameTitleSearch)
+    // console.log(data)
   };
 
-  // <PageWrapperFlex direction="row">
+  // const fetchGame = async (gameTitle) => {
+  //   const xmlData = await fetch(
+  //     `http://localhost:8080/https://boardgamegeek.com/xmlapi/search?search=${gameTitle}&page=1&pagesize=10`
+  //   );
+  //   console.log(xmlData);
+  //   // const jsonData = await xmlData.json()
+  //   // console.log(jsonData)
+  // };
   return (
-    <>
-      <FormWrapper>
-        <Form name="gameLookup" onSubmit={handleSubmit}>
-          <Label htmlFor="gameTitle">Game title: </Label>
+    <Wrapper>
+      <Section bgcolor={colors.white}>
+        <Form
+          templatecolumns="repeat(6, 1fr)"
+          name="gameLookup"
+          onSubmit={handleSubmit}
+        >
+          {/* <Header>Search for game</Header> */}
+          <Label column="1/2" htmlFor="gameTitle">
+            Game title
+          </Label>
           <Input
+            column="2/4"
             type="text"
             name="gameTitle"
             value={gameTitleSearch}
             onChange={handleChange}
           />
-          <Button type="submit">Search</Button>
-        </Form>
-      </FormWrapper>
-      <Section bgcolor={colors.white}>
-        <Results>
-          {searchResults.map((game) => (
+          <Label column="4/5" htmlFor="searchScope">
+            Search scope
+          </Label>
+          <Select
+            column="5/7"
+            name="searchScope"
+            onChange={(e) => setSearchScope(e.target.value)}
+          >
+            <Option value={SEARCHSCOPES.ALL}>Game Database</Option>
+            <Option value={SEARCHSCOPES.USER}>User</Option>
+            <Option value={SEARCHSCOPES.EVENT}>Event</Option>
+          </Select>
+          {searchScope === SEARCHSCOPES.USER ? (
             <>
-              <GameInfo bold>{game[0]}</GameInfo>
-              <GameInfo>{game[1]}</GameInfo>
-              <GameInfo>{game[2]}</GameInfo>
-              <GameActions>
-                <ToolTip
-                  message="Add game to collection"
-                  position="top"
-                  colors={colors}
-                >
-                  <Icon
-                    color={colors.primary}
-                    icon={faPlus}
-                    onClick={() => {
-                      activateToast("Game added to collection");
-                    }}
-                  />
-                </ToolTip>
-                <ToolTip>
-                  <Icon
-                    color={colors.highlightGreen}
-                    icon={faInfoCircle}
-                    onClick={() => {
-                      activateToast("Game info");
-                    }}
-                  />
-                </ToolTip>
-              </GameActions>
+              <Label column="1/2" htmlFor="userName">
+                User
+              </Label>
+              <Input
+                column="2/4"
+                type="text"
+                name="userName"
+                onChange={handleChange}
+                value={userNameSearch}
+              />
             </>
-          ))}
-        </Results>
+          ) : searchScope === SEARCHSCOPES.EVENT ? (
+            <>
+              <Label column="1/2" htmlFor="event">
+                Event ID
+              </Label>
+              <Input
+                column="2/4"
+                type="text"
+                name="eventId"
+                onChange={handleChange}
+                value={eventIdSearch}
+              />
+            </>
+          ) : null}
+          <Button column="5/7" type="submit">
+            Search
+          </Button>
+        </Form>
       </Section>
-    </>
+      {searchResults.length > 0 ? (
+        <GameList search={gameTitleSearch} games={searchResults}/>
+      ) : null}
+    </Wrapper>
   );
 };
 
-//  <GameList>
-//               {searchResults.map((game, i) => (
-//                 <GameListItem colors={colors} index={i} key={game.id}>
-//                   <GameTitle>{game.name}</GameTitle>
-//                   <Icon color={colors.primary} icon={faPlus} />
-//                 </GameListItem>
-//               ))}
-//             </GameList>
 export default Games;
+
+// {searchResults.map((game) => {
+//   return <GameCard key={game.id} gameobject={game} />;
+// })}

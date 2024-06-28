@@ -35,12 +35,12 @@ const Icon = styled(FontAwesomeIcon)`
   }
 `;
 const GameList = (props) => {
-  const { games } = props;
+  const { games , search} = props;
   const { colors } = useContext(UtilityContext);
   return (
     <>
       {games.map((game, index) => (
-        <GameListItem game={game} key={game.id} index={index} />
+        <GameListItem search={search} game={game} key={game.id} index={index} />
       ))}
     </>
   );

@@ -42,8 +42,7 @@ const Icon = styled(FontAwesomeIcon)`
   }
 `;
 
-const GameListItem = ({ game, index }) => {
-  const { name, yearPublished, id } = game;
+const GameListItem = ({ game, index, search}) => {
   const { colors } = useContext(UtilityContext);
   const { addGameToCurrentUser } = useContext(FirebaseContext);
   const { getGameDataById } = useContext(BoardgameContext);
@@ -52,7 +51,7 @@ const GameListItem = ({ game, index }) => {
 
   const getGameInfo = () => {
     if (!gameData) {
-      const data = getGameDataById(id)
+      const data = getGameDataById(game.id)
       console.log(data)
       setGameData(data);
     } else {
@@ -61,24 +60,23 @@ const GameListItem = ({ game, index }) => {
   }
 
   const goToGame = () => {
-    navigate(`/games/${game.id}`);
+    const url = `/games/game/${game.id}?search=${search}`;
+    console.log(url);
+    navigate(url);
   }
 
   return (
-    <GameListItemWrapper colors={colors} index={index}>
-      <GameInfo bold={1}>{name}</GameInfo>
-      <GameInfo>{yearPublished}</GameInfo>
+    <GameListItemWrapper index={index} colors={colors}>
+      <GameInfo>{game.name}</GameInfo>
+      <GameInfo>{game.yearPublished}</GameInfo>
       <GameActions>
-        <Icon
-          icon={faPlusCircle}
-          color={colors.primary}
-          onClick={() => {
-            addGameToCurrentUser(game);
-          }}
-        />
+        <ToolTip text="Add to collection">
+          <Icon icon={faPlusCircle} color={colors.primary}/>
+        </ToolTip>
+        <ToolTip text="See Details">
         <Icon icon={faInfoCircle} color={colors.highlightGreen} onClick={goToGame} />
+        </ToolTip>
       </GameActions>
-      {gameData && <GameCard gameObj={gameData} closer={(e)=>setGameData(null)}/>}
     </GameListItemWrapper>
   );
 };

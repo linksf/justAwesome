@@ -6,7 +6,7 @@ import { BoardgameContext } from "./context/BoardgameContext";
 import { FirebaseContext } from "./context/FirebaseContext";
 import { UtilityContext } from "./context/UtilityContext";
 import Home from "./pages/Home";
-import Games from "./pages/Games copy";
+import Games from "./pages/Games";
 import Events from "./pages/Events";
 import Profile from "./pages/Profile";
 import Toast from "./components/Toast";
@@ -124,7 +124,8 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/home" element={<Home />} />
               <Route path="/games" element={<Games />}/>
-              <Route path="/game" element={<Game />} />
+              <Route path="/games/:search" element={<Games />}/>
+              <Route path="/games/game/:id" element={<Game />} />
               <Route path="/events" element={<Events />}>
                 <Route path=":id" element={<Event/>} />
                 <Route path="calendar" element={<Calendar />} />
