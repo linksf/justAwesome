@@ -12,29 +12,34 @@ export const BoardgameContext = createContext();
 const BoardgameProvider = ({ children }) => {
   const { error, setError, TOASTTYPES, activateToast } =
     useContext(UtilityContext);
+    const { sendGameToFirebase } = useContext(FirebaseContext);
   const [state, setState] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  function searchGameByName(name){
+  function searchGameByName(name) {
     console.log("searchGameByName", name);
-    let parser = new DOMParser
+    let parser = new DOMParser();
     // const url = `http://localhost:8080/https://www.boardgamegeek.com/xmlapi2/search?query=${name}`;
     const url = `https://www.boardgamegeek.com/xmlapi2/search?query=${name}`;
-    let req = new XMLHttpRequest()
-    req.open("GET", url, false)
-    req.send(null)
-    let text = req.responseText
-    let xmlDoc = parser.parseFromString(text, "text/xml")
-    let totalResults = xmlDoc.querySelector("items").getAttribute("total")
-    let items = xmlDoc.querySelectorAll("item")
-    let itemArray = []
-    items.forEach((item=>{
-      const itemObj = {}
-      itemObj.name = item.querySelector("name").getAttribute("value")
-      itemObj.id = item.getAttribute("id")
-      itemObj.yearPublished = item.querySelector("yearpublished")?.getAttribute("value")
-      itemArray.push(itemObj)
-    }))
-    return itemArray
+    let req = new XMLHttpRequest();
+    req.open("GET", url, false);
+    req.send();
+    let text = req.responseText;
+    let xmlDoc = parser.parseFromString(text, "text/xml");
+    let totalResults = xmlDoc.querySelector("items").getAttribute("total");
+    let items = xmlDoc.querySelectorAll("item");
+    let itemArray = [];
+    items.forEach((item) => {
+      const itemObj = {};
+      itemObj.name = item.querySelector("name").getAttribute("value");
+      itemObj.id = item.getAttribute("id");
+      itemObj.yearPublished = item
+        .querySelector("yearpublished")
+        ?.getAttribute("value");
+      itemArray.push(itemObj);
+    });
+    return itemArray;
   }
 
   function getGameDataById(id) {
@@ -42,41 +47,42 @@ const BoardgameProvider = ({ children }) => {
     console.log("getGameData", id);
     const url = `https://boardgamegeek.com/xmlapi/boardgame/${id}`;
     let req = new XMLHttpRequest();
-    req.open(
-      "GET",
-      url,
-      false
-    );
+    req.open("GET", url, false);
     req.send(null);
     let text = req.responseText;
     parser = new DOMParser();
     xmlDoc = parser.parseFromString(text, "text/xml");
-    html = xmlDoc.querySelector("description").textContent
-    htmlParser = new DOMParser()
-    htmlDoc = htmlParser.parseFromString(html, "text/html")
+    html = xmlDoc.querySelector("description").textContent;
+    htmlParser = new DOMParser();
+    htmlDoc = htmlParser.parseFromString(html, "text/html");
     const gameObj = {
       name: null,
-      id: null, 
-      year: null,
-      minPlayers: null,
-      maxPlayers: null,
-      playTime: null,
+      id: null,
+      yearpublished: null,
+      minplayers: null,
+      maxplayers: null,
+      playingtime: null,
       description: htmlDoc.body.textContent,
       thumbnail: null,
       image: null,
-      age: null
+      age: null,
+      yearpublished: null,
     };
-      gameObj.name = xmlDoc.querySelector('name[primary="true"]')?.textContent ?? null
-      gameObj.year = xmlDoc.querySelector('yearpublished')?.textContent ?? null
-      gameObj.minPlayers = xmlDoc.querySelector('minplayers')?.textContent ?? null
-      gameObj.maxPlayers = xmlDoc.querySelector('maxplayers')?.textContent ?? null
-      gameObj.age = xmlDoc.querySelector('age')?.textContent ?? null
-      gameObj.playTime = xmlDoc.querySelector('playingtime')?.textContent ?? null
-      gameObj.id = xmlDoc.querySelector('item')?.getAttribute("id") ?? null
-      gameObj.thumbnail = xmlDoc.querySelector('thumbnail')?.textContent ?? null
-      gameObj.image = xmlDoc.querySelector('image')?.textContent ?? null
+    gameObj.name =
+      xmlDoc.querySelector('name[primary="true"]')?.textContent ?? null;
+    gameObj.yearpublished = xmlDoc.querySelector("yearpublished")?.textContent ?? null;
+    gameObj.minplayers =
+      xmlDoc.querySelector("minplayers")?.textContent ?? null;
+    gameObj.maxplayers =
+      xmlDoc.querySelector("maxplayers")?.textContent ?? null;
+    gameObj.age = xmlDoc.querySelector("age")?.textContent ?? null;
+    gameObj.playingtime = xmlDoc.querySelector("playingtime")?.textContent ?? null;
+    gameObj.id = xmlDoc.querySelector("boardgame")?.getAttribute("objectid") ?? null;
+    gameObj.thumbnail = xmlDoc.querySelector("thumbnail")?.textContent ?? null;
+    gameObj.image = xmlDoc.querySelector("image")?.textContent ?? null;
     // console.log(xmlDoc.getElementsByTagName("name")[0].getAttribute("value"));
-  return gameObj;
+    sendGameToFirebase(gameObj);
+    return gameObj;
   }
 
   //   fetch(url)
@@ -97,7 +103,14 @@ const BoardgameProvider = ({ children }) => {
   //     });
   // }
 
-  const value = { getGameDataById, searchGameByName };
+  const value = {
+    getGameDataById,
+    searchGameByName,
+    searchResults,
+    setSearchResults,
+    searchTerm,
+    setSearchTerm,
+  };
 
   return (
     <BoardgameContext.Provider value={value}>

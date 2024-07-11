@@ -60,7 +60,7 @@ const GameListItem = ({ game, index, search}) => {
   }
 
   const goToGame = () => {
-    const url = `/games/game/${game.id}?search=${search}`;
+    const url = `/games/game/${game.id}`;
     console.log(url);
     navigate(url);
   }

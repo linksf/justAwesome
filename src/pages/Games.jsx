@@ -42,34 +42,46 @@ const Icon = styled(FontAwesomeIcon)``;
 const Games = (props) => {
   const location = useLocation();
   const [gameTitleSearch, setGameTitleSearch] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
+  // const [searchResults, setSearchResults] = useState([]);
   const [userNameSearch, setUserNameSearch] = useState("");
   const [eventIdSearch, seteventIdSearch] = useState("");
   
   const { error, setError, colors, activateToast, SEARCHSCOPES } =
   useContext(UtilityContext);
   const [searchScope, setSearchScope] = useState(SEARCHSCOPES.ALL);
-  const { getGameData, searchGameByName } = useContext(BoardgameContext);
+  const {getGameDataById,
+    searchGameByName,
+    searchResults,
+    setSearchResults,
+    searchTerm,
+    setSearchTerm, } = useContext(BoardgameContext);
   
   const searchGame = async (gameTitle) => {
-    const itemArray = await searchGameByName(gameTitle);
+    let itemArray = [];
+    itemArray = await searchGameByName(gameTitle);
     setSearchResults(itemArray);
   };
   
+  // useEffect(() => {
+  //   const queryParam = new URLSearchParams(location.search);
+  //    const term = queryParam.get("search");
+  //    if (term !== null){
+  //       const Term = term.replace(/%20/g, "+");
+  //       setSearchTerm(Term);
+  //     searchGame(searchTerm)
+  //    }
+  //   }, [location]);
+
   useEffect(() => {
-    const queryParam = new URLSearchParams(location.search);
-     const searchTerm = queryParam.get("search");
-     if (searchTerm !== null){
-      console.log("searchTerm", searchTerm)
-      searchGame(searchTerm)
-     }
-    }, [location]);
+    if (searchTerm !== "") {
+      searchGame(searchTerm);
+    }}, []);
 
   const handleChange = (e) => {
     const name = e.target.name;
     switch (name) {
       case "gameTitle":
-        setGameTitleSearch(e.target.value);
+        setSearchTerm(e.target.value);
         break;
         case "userName":
           setUserNameSearch(e.target.value);
@@ -85,7 +97,8 @@ const Games = (props) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const itemArray = await searchGameByName(gameTitleSearch);
+    let itemArray = [];
+    itemArray = await searchGameByName(searchTerm);
     setSearchResults(itemArray);
     // const data = await getGameData(gameTitleSearch)
     // console.log(data)
@@ -115,7 +128,7 @@ const Games = (props) => {
             column="2/4"
             type="text"
             name="gameTitle"
-            value={gameTitleSearch}
+            value={searchTerm}
             onChange={handleChange}
           />
           <Label column="4/5" htmlFor="searchScope">

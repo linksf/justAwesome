@@ -27,7 +27,7 @@ const NavWrapper = styled.div`
   position: absolute;
   bottom: 0px;
   left: 0;
-  width: 100%;
+  width: max-content;
   height: 60px;
   z-index: 999;
   backdrop-filter: blur(5px);
@@ -35,7 +35,7 @@ const NavWrapper = styled.div`
   background-color: transparent;
 
   //media queries for all common screen sizes (mobile, tablet, desktop). change the max-width to adjust the screen size
-  @media (min-width: 768px) {
+  /* @media (min-width: 768px) {
     max-height: 50px;
     width: 600px;
   }
@@ -43,7 +43,7 @@ const NavWrapper = styled.div`
   @media (min-width: 1024px) {
     height: 50px;
     width: 800px;
-  }
+  } */
 `;
 
 const NavItem = styled.div`

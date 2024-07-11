@@ -79,6 +79,7 @@ const EventTitle = styled.p`
   margin: 0;
   box-sizing: border-box;
   font-size: 1.5rem;
+  cursor: pointer;
 `;
 const EventLocation = styled.p`
   grid-column: 1/2;
@@ -113,7 +114,7 @@ const EventAttendees = styled.p``;
 const EventCard = ({ event, isexpanded }) => {
   const { isCurrentUserHost, user, userDocRef } = useContext(FirebaseContext);
   const {
-    UUID,
+    id,
     name,
     dateObject,
     startTime,
@@ -130,7 +131,7 @@ const EventCard = ({ event, isexpanded }) => {
   const { month, day, date, year } = dateObject;
   const navigate = useNavigate();
   const editEvent = () => {
-    navigate("/events/" + UUID);
+    navigate("/events/" + id);
   };
 
   const isUserHost = () => userDocRef.id == host.id;
@@ -142,7 +143,7 @@ const EventCard = ({ event, isexpanded }) => {
         <Date>{date}</Date>
       </CalendarIcon>
       <EventCardBody>
-        <EventTitle>{name}</EventTitle>
+        <EventTitle onClick={(e)=>navigate(`/events/${id}`)}>{name}</EventTitle>
         <EventLocation>{`${street} ${city}`}</EventLocation>
         <EventTime>{`${startTime} - ${endTime}`}</EventTime>
         <EventCardActions>

@@ -66,9 +66,8 @@ const Create = (props) => {
     uploadImageToStorage,
     getRandomGameImageUrl,
   } = useContext(FirebaseContext);
-  const { setError, colors, activateToast, SEARCHSCOPES } = useContext(
-    UtilityContext
-  );
+
+  const { setError, colors, activateToast, SEARCHSCOPES } = useContext(UtilityContext);
   const [formData, setFormData] = useState({ ...blankForm });
   const [imageFile, setImageFile] = useState(null);
   const handleChange = (e) => {
@@ -93,7 +92,7 @@ const Create = (props) => {
       dateObject: dateObject,
       image: imageUrl,
     };
-
+    console.dir(eventData);
     createEvent(eventData)
       .then((res) => {
         console.log(res);
@@ -110,6 +109,7 @@ const Create = (props) => {
       .split(" ");
     return { day: day, month: month, date: date, year: year };
   };
+  
   const handleCheckboxChange = (e) => {
     setFormData({
       ...formData,

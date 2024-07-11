@@ -31,7 +31,6 @@ const Form = styled.form`
   border-radius: 10px;
   font-family: "Roboto", sans-serif;
 `;
-
 const Header = styled.h1`
   font-size: 20px;
   color: yellow;
@@ -57,7 +56,6 @@ const Input = styled.input`
 //   position: absolute;
 //   right: 0;
 // }
-
 const Label = styled.label`
   text-align: right;
   padding: 10px 10px 0 0;
@@ -69,7 +67,6 @@ const Label = styled.label`
   grid-column: 1/2;
   padding-left: 10px;
 `;
-
 const Button = styled.button`
   grid-column: 2/4;
   width: 150px;

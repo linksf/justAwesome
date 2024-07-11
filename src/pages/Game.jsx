@@ -47,7 +47,6 @@ const Icon = styled(FontAwesomeIcon)`
 `;
 
 const Game = (props) => {
-  const location = useLocation();
   const navigate = useNavigate();
   const { id } = useParams();
   const [data, setData] = useState(null);
@@ -58,12 +57,6 @@ const Game = (props) => {
   const { addGameToCurrentUser } = useContext(FirebaseContext);
 
   useEffect(() => {
-   const queryParam = new URLSearchParams(location.search);
-    const searchTerm = queryParam.get("search");
-    setSearchTerm(searchTerm);
-  }, [location]);
-
-  useEffect(() => {
     const gameData = getGameDataById(id);
     console.log(gameData);
     setData(gameData);
@@ -71,7 +64,7 @@ const Game = (props) => {
 
   const returnToSearch = () => {
     if (searchTerm) {
-      navigate(`/games/${searchTerm}`);
+      navigate(`/games`);
     } else {
       navigate("/games")
     }
@@ -91,9 +84,9 @@ const Game = (props) => {
           <img src={data?.thumbnail} alt="game"/>
         </div>
         <div>
-          <h2>Year Published: {data?.yearPublished}</h2>
-          <h2>Min Players: {data?.minPlayers}</h2>
-          <h2>Max Players: {data?.maxPlayers}</h2>
+          <h2>Year Published: {data?.yearpublished}</h2>
+          <h2>Min Players: {data?.minplayers}</h2>
+          <h2>Max Players: {data?.maxplayers}</h2>
           <h2>Age: {data?.age}+</h2>
         </div>
       </Row>

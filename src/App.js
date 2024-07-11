@@ -43,7 +43,7 @@ const Wrapper = styled.div`
 `
 const AppContainer = styled.div`
 position: relative;
-overflow: hidden;
+overflow: auto;
 margin: 0 auto;
 display: flex;
 flex-direction: column;
@@ -61,8 +61,6 @@ align-items: flex-start;
   @media (min-width: 480px) {
     //background-color: ${colors.primary};
   }
-
- 
 `;
 const PageContainer = styled.div` 
 //width: calc(100vw - 40px);

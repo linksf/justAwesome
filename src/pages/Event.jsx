@@ -36,28 +36,30 @@ const Wrapper = styled.div`
   width: 100%;
   height: 100%;
   backdrop-filter: blur(5px);
-  background-color: #ffffff80;
+  //background-color: #ffffff80;
   padding: 20px;
   display: flex;
   flex-direction: column;
+  color: ${colors.white};
 `;
 const Title = styled.h1`
-  color: ${colors.black};
+  /* color: ${colors.black}; */
   padding: 0;
   text-align: center;
   line-height: 50px;
   vertical-align: bottom;
   position: relative;
   text-transform: uppercase;
-  margin: 20px auto 0 auto;
+  margin: 20px auto 5px auto;
   overflow: scroll;
+  width: 100%;
 
   &::before {
     content: "";
     display: block;
     width: 100%;
     height: 2px;
-    background: ${colors.black};
+    background: ${colors.white};
     left: 0;
     position: absolute;
   }
@@ -66,7 +68,7 @@ const Title = styled.h1`
     display: block;
     width: 100%;
     height: 2px;
-    background: ${colors.black};
+    background: ${colors.white};
     right: 0;
     bottom: 0;
     position: absolute;
@@ -78,12 +80,17 @@ const Info = styled.h2`
   font-size: 15px;
   margin-bottom: 15px;
 `;
-const DescriptionIntro = styled.p`
+
+const DescriptionIntro = styled.span`
   font-weight: bold;
-  padding: 0 10px;
+  padding: 0 10px 5px 0;
+  display: block;
+  text-align: center;
 `;
 const Description = styled.p`
   padding: 10px;
+  margin: 5px;
+  min-height: 140px;
 `;
 
 const ImageContainer = styled.div`
@@ -97,8 +104,9 @@ const ImageContainer = styled.div`
   align-items: center;
 `;
 const Image = styled.img`
-  height: 100px;
-  margin: 0 auto;
+  /* height: 100px; */
+  width: 100%;
+  margin: 20px auto;
 `;
 const Atendance = styled.div`
   display: flex;
@@ -160,7 +168,7 @@ const InviteRequestButton = styled.button`
 `;
 
 const Event = () => {
-  const { id, mode } = useParams();
+  const { id } = useParams();
   const { error, setError, colors, activateToast, SEARCHSCOPES } = useContext(
     UtilityContext
   );
@@ -172,29 +180,30 @@ const Event = () => {
   const [eventAccessable, setEventAccessable] = useState(false);
   const [inviteVisable, setInviteVisable] = useState(false);
   const navigate = useNavigate();
-  const getEvent = async () => {
-    getEventById(id)
-      .then((event) => {
-        if (event === undefined) {
-          navigate("/events");
-        }
-        if (event !== null) {
-          setEventAccessable(true);
-        }
 
-        const editable = userDocRef.id === event.host.id;
-        //const editable = true;
-        const eventInfo = { ...event, editable: editable };
-        setState(eventInfo);
-        return eventInfo;
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+  const getEvent = async () => {
+    let event
+    try {
+      event = await getEventById(id)
+      if (event === undefined) {
+        navigate("/events");
+        return;
+      }
+      else {setEventAccessable(true)}
+      const editable = userDocRef.id === event.host.id;
+      //const editable = true;
+      const eventInfo = { ...event, editable: editable };
+      setState(eventInfo);
+      return eventInfo;
+    } catch (err) {
+      setError(err);
+    }
   };
+
   const invite = () => {
     setInviteVisable(true);
   };
+  
   const closeInvite = () => {
     setInviteVisable(false);
   };
@@ -206,6 +215,8 @@ const Event = () => {
   const seeMyEvents = () => {
     navigate("/events/calendar");
   };
+
+
   const editEvent = () => {};
   return (
     <>
@@ -217,13 +228,15 @@ const Event = () => {
           </ImageContainer>
           <Title>{state?.name}</Title>
           <Info>{`${state?.dateObject?.day}, ${state?.dateObject?.month} ${state?.dateObject?.date} ${state?.dateObject?.year} | ${state?.street} ${state?.city}, ${state.state} ${state.zip}`}</Info>
+          <Description>
           <DescriptionIntro>About the Event</DescriptionIntro>
-          <Description>{state?.description}</Description>
+            {state?.description}
+            </Description>
           <Atendance>
             <AttendeeList>
               {state?.attendees?.length
                 ? state?.attendees?.map((attendee) => (
-                    <UserCard key={attendee.id} userObject={attendee} a />
+                    <UserCard key={attendee.id} userObject={attendee}/>
                   ))
                 : null}
             </AttendeeList>
@@ -236,9 +249,11 @@ const Event = () => {
       ) : (
         <InviteWrapper>
           <InviteRequest>
-            <InviteIntro>Looks like you haven't been invited yet.</InviteIntro>
+            <InviteIntro>
+                Looks like you haven't been invited yet.
+            </InviteIntro>
             <InviteIntro align="right">
-              I'm sure it was an accidental oversight!
+                I'm sure it was an accidental oversight!
             </InviteIntro>
             <ButtonWrapper>
               <InviteRequestButton>Request an invitation</InviteRequestButton>

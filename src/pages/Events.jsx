@@ -35,6 +35,7 @@ const EventsWrapper = styled.div`
   height: calc(100vh - 60px);
   position: relative;
   width: 100%;
+  backdrop-filter: blur(10px);
 `;
 
 const OutletWrapper = styled.div``;

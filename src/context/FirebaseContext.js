@@ -39,7 +39,7 @@ export default function FirebaseProvider({ children }) {
     storageBucket: "justawesome-4a997.appspot.com",
     messagingSenderId: "1010464826067",
     appId: "1:1010464826067:web:e9449cc98667d16f672a26",
-    measurementId: "G-HNZT7XH9JW"
+    measurementId: "G-HNZT7XH9JW",
   };
 
   // Initialize Firebase
@@ -51,13 +51,8 @@ export default function FirebaseProvider({ children }) {
   const [user, setUser] = useState(null);
   const [userAuth, setUserAuth] = useState(null);
   const [userDocRef, setUserDocRef] = useState(null);
-  const {
-    setError,
-    activateToast,
-    TOASTTYPES,
-    generateUUID,
-    EVENT_STATUS,
-  } = useContext(UtilityContext);
+  const { setError, activateToast, TOASTTYPES, generateUUID, EVENT_STATUS } =
+    useContext(UtilityContext);
   const userCollection = collection(db, "users");
 
   useEffect(() => {
@@ -93,9 +88,11 @@ export default function FirebaseProvider({ children }) {
       setUser(null);
     }
   });
+
   const logOut = () => {
     signOut(auth);
   };
+
   const validate = (credentials) => {
     const { email, password, password2 } = credentials;
     if (
@@ -110,6 +107,25 @@ export default function FirebaseProvider({ children }) {
     }
     return true;
   };
+
+  const sendGameToFirebase = async (gameData) => {
+    const gameDocRef = doc(db, "games", gameData.id);
+    console.log(gameDocRef);
+    const gameDocSnap = await getDoc(gameDocRef);
+    if (gameDocSnap.exists()) {
+      console.log("game was already in database");
+      return;
+    }
+    else {
+      setDoc(gameDocRef, gameData)
+        .then(() => {
+          console.log(`added game with id ${gameData.id} to database`);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    }
+  }
 
   const signUp = (credentials) => {
     const { email, password, password2 } = credentials;
@@ -140,28 +156,24 @@ export default function FirebaseProvider({ children }) {
   };
 
   const getRandomGameImageUrl = async () => {
-    const num = Math.ceil(Math.random() * 9);
-    const imageRef = ref(storage, `/events/images/games${num}.png`);
+    const num = Math.ceil(Math.random() * 6);
+    const imageRef = ref(storage, `/events/games${num}.png`);
     const urlPromise = await getDownloadURL(imageRef);
     return Promise.resolve(urlPromise);
   };
 
   const addGameToDb = async (gameData) => {
     const {
-      id,
       name,
-      year_published,
-      min_players,
-      max_players,
-      min_playtime,
-      max_playtime,
-      min_age,
-      description_preview,
-      thumb_url,
-      image_url,
-      primary_publisher,
-      mechanics,
-      categories,
+      id,
+      yearpublished,
+      minplayers,
+      maxplayers,
+      minplaytime,
+      maxplaytime,
+      minage,
+      thumbUrl,
+      image
     } = gameData;
     if (checkDbForGame(id)) {
       console.log("game was already in database");
@@ -169,20 +181,16 @@ export default function FirebaseProvider({ children }) {
     }
     const gameDocRef = doc(db, "games", id);
     setDoc(gameDocRef, {
-      id,
       name,
-      year_published,
-      min_players,
-      max_players,
-      min_playtime,
-      max_playtime,
-      min_age,
-      description_preview,
-      thumb_url,
-      image_url,
-      primary_publisher,
-      mechanics,
-      categories,
+      id,
+      yearpublished,
+      minplayers,
+      maxplayers,
+      minplaytime,
+      maxplaytime,
+      minage,
+      thumbUrl,
+      image
     })
       .then(() => {
         console.log(`added game with id ${id} to database`);
@@ -196,7 +204,6 @@ export default function FirebaseProvider({ children }) {
 
   const addGameToCurrentUser = async (gameData) => {
     try {
-      await addGameToDb(gameData);
       const docSnap = await getDoc(userDocRef);
       const games = docSnap.data().games;
       const gameDocRef = doc(db, "games", gameData.id);
@@ -245,20 +252,20 @@ export default function FirebaseProvider({ children }) {
 
   const createEvent = async (eventInfo) => {
     const UUID = generateUUID();
+    eventInfo.id = UUID;
+    eventInfo.host = userDocRef
     const eventDocRef = doc(db, "events", UUID);
-    eventInfo.attendees.push({
-      name: user.name,
-      id: user.email,
-      reference: userDocRef,
-      status: "host"
-    });
-    setDoc(eventDocRef, { ...eventInfo, host: userDocRef, UUID: UUID })
-      .then((event) => {
-        console.log(event);
+        eventInfo.attendees.push({
+        name: user.name,
+        id: user.email,
+        reference: userDocRef,
+        status: "host",
+        });
+
+    await setDoc(eventDocRef, { ...eventInfo})
         activateToast("Event created", TOASTTYPES.SUCCESS, 3000);
         updateDoc(userDocRef, { events_hosting: arrayUnion(eventDocRef) });
-      })
-      .catch((err) => setError(err));
+        return eventDocRef;
   };
 
   const getCurrentUserEvents = async () => {
@@ -385,8 +392,7 @@ export default function FirebaseProvider({ children }) {
       } else {
         return null;
       }
-    }
-    else {
+    } else {
       setError("Event not found");
     }
   };
@@ -395,24 +401,25 @@ export default function FirebaseProvider({ children }) {
     const emailsArray = emailsString.split(",");
     const needToJoin = [];
     const attendeesArray = [];
-    console.log(emailsArray)
+    console.log(emailsArray);
     const eventDocRef = doc(db, "events", eventId);
     for (let email of emailsArray) {
-      console.log(email)
+      console.log(email);
       const userDocRef = doc(db, "users", email);
       const docSnap = await getDoc(userDocRef);
-      console.log(docSnap.data())
+      console.log(docSnap.data());
       if (!docSnap.exists()) {
         needToJoin.push(email);
-      } 
-      else {
+      } else {
         const { displayName } = docSnap.data();
-        await updateDoc(eventDocRef, {attendees: arrayUnion({
-          id: email,
-          name: displayName,
-          reference: userDocRef,
-          status: EVENT_STATUS.invited,
-        })});
+        await updateDoc(eventDocRef, {
+          attendees: arrayUnion({
+            id: email,
+            name: displayName,
+            reference: userDocRef,
+            status: EVENT_STATUS.invited,
+          }),
+        });
         await updateDoc(userDocRef, {
           events: arrayUnion({
             reference: eventDocRef,
@@ -421,27 +428,16 @@ export default function FirebaseProvider({ children }) {
         });
       }
     }
-    console.log(needToJoin)
+    console.log(needToJoin);
   };
-  const clientId = "usRohsToAJ";
-  const baseUrl = "https://api.boardgameatlas.com/api/";
 
   const isCurrentUserHost = (eventId) => {
     // console.log(userDocRef)
     // console.log(eventDocRef)
     // return userDocRef == e
   };
-  const searchForGameByTitle = (title, scope, data) => {
-    const URL = `${baseUrl}search?name=${title}&client_id=${clientId}`;
-    console.log(URL);
-    return axios
-      .get(URL)
-      .then((res) => res.data.games)
-      .catch((err) => {
-        setError(err);
-        return null;
-      });
-  };
+
+
   const value = {
     groupEventInvite,
     user,
@@ -457,11 +453,12 @@ export default function FirebaseProvider({ children }) {
     getGamesByUid,
     getEventById,
     checkDbForGame,
-    searchForGameByTitle,
     uploadImageToStorage,
     isCurrentUserHost,
     getRandomGameImageUrl,
+    sendGameToFirebase,
   };
+
   return (
     <FirebaseContext.Provider value={value}>
       {children}
